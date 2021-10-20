@@ -1,13 +1,20 @@
-import sys
-import os
+# --- <Do not edit> ---
+def getInputLines():
+    import sys
 
-if len(sys.argv) < 1:
-    raise ValueError('Path of this script not available in sys.argv')
+    if len(sys.argv) < 1:
+        raise ValueError('Path of this script not available in sys.argv')
 
-lines = []
-inputFilePath=sys.argv[0].replace('day$.py', 'input.txt')
-with open(inputFilePath) as f:
-    lines = [line.strip() for line in f]
+    lines = []
+    inputFilePath = sys.argv[0].replace('day$.py', 'input.txt')
+    with open(inputFilePath) as f:
+        lines = [line.strip() for line in f]
+
+    return lines
+# --- </Do not edit> ---
+
+
+lines = getInputLines()
 
 # Part 1
 resultPart1 = 0

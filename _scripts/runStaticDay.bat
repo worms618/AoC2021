@@ -1,6 +1,7 @@
 @ECHO OFF
 SET DAYNR=1
+SET DAYROOT=..\src
 SET DAY=day%DAYNR%
 
-CALL python ..\src\%DAY%\%DAY%.py
+CALL python %DAYROOT%\%DAY%\%DAY%.py
 PAUSE

@@ -6,14 +6,17 @@
 import os
 import sys
 
-daysRootDir = os.path.join('..', 'src')
+if len(sys.argv) < 3:
+    raise ValueError('No root directory and day number given')
+
+daysRootDir = sys.argv[1]
+day=int(sys.argv[2])
+
 replaceWithDayNumberChar = '$'
 
 # Days template directory with content
 daysTemplateDirName = '_day' + replaceWithDayNumberChar
 daysTemplateDirPath = os.path.join(daysRootDir, daysTemplateDirName)
-
-day = 1
 
 dayDirName = daysTemplateDirName.replace('_', '').replace(replaceWithDayNumberChar, str(day))
 dayDirPath = os.path.join(daysRootDir, dayDirName)
