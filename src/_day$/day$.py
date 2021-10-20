@@ -1,5 +1,12 @@
+import sys
+import os
+
+if len(sys.argv) < 1:
+    raise ValueError('Path of this script not available in sys.argv')
+
 lines = []
-with open('./input.txt') as f:
+inputFilePath=sys.argv[0].replace('day$.py', 'input.txt')
+with open(inputFilePath) as f:
     lines = [line.strip() for line in f]
 
 # Part 1
