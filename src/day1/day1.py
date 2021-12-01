@@ -13,16 +13,22 @@ def getInputLines():
     return lines
 # --- </Do not edit> ---
 
+
 def getNextAmountIncreased(curDepth, nextDepth, curAmountIncreased):
     if curDepth < nextDepth:
         return curAmountIncreased + 1
     else:
         return curAmountIncreased
 
-depths = getInputLines()
+def toInt(value):
+    return int(value)
+
+lines = getInputLines()
+linesAsInts = map(toInt, lines)
+depths = [line for line in linesAsInts]
 
 # Part 1
-amountIncreased=0
+amountIncreased = 0
 
 amountOfDepths = len(depths)
 
@@ -31,11 +37,13 @@ for index in range(amountOfDepths):
     if shouldCalcAmountIncreased:
         curDepth = depths[index]
         nextDepth = depths[index + 1]
-        amountIncreased = getNextAmountIncreased(int(curDepth), int(nextDepth), amountIncreased)
+        amountIncreased = getNextAmountIncreased(curDepth, nextDepth, amountIncreased)
 
 resultPart1 = amountIncreased
 print('Anwser day 1 part 1:', resultPart1)
 
 # Part 2
+amountIncreased = 0
+
 resultPart2 = 0
 print('Anwser day 1 part 2:', resultPart2)
