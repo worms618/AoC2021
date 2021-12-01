@@ -20,8 +20,10 @@ def getNextAmountIncreased(curDepth, nextDepth, curAmountIncreased):
     else:
         return curAmountIncreased
 
+
 def toInt(value):
     return int(value)
+
 
 lines = getInputLines()
 linesAsInts = map(toInt, lines)
@@ -45,5 +47,40 @@ print('Anwser day 1 part 1:', resultPart1)
 # Part 2
 amountIncreased = 0
 
-resultPart2 = 0
+measurementsGroups = []
+measurementsGroupIndices = []
+
+groupsToFill = []
+
+for index in range(amountOfDepths):
+    groupsToFill.append([])
+
+    for groupToFill in groupsToFill:
+        groupToFill.append(index)
+
+    groupIndexToCheck = 0
+    while (groupIndexToCheck < len(groupsToFill)):
+        groupToCheck = groupsToFill[groupIndexToCheck]
+        if len(groupToCheck) == 3:
+            filledGroup = groupsToFill.pop(groupIndexToCheck)
+            measurementsGroupIndices.append(filledGroup)
+        else:
+            groupIndexToCheck = groupIndexToCheck + 1
+
+for measurementGroupIndices in measurementsGroupIndices:
+    measurementGroup = []
+    measurementsGroups.append(measurementGroup)
+
+    for depthIndex in measurementGroupIndices:
+        measurementGroup.append(depths[depthIndex])
+
+totalMeasurementsGroups = len(measurementsGroups)
+for index in range(totalMeasurementsGroups):
+    shouldCalcAmountIncreased = (index + 1) < totalMeasurementsGroups
+    if shouldCalcAmountIncreased:
+        curDepth = sum(measurementsGroups[index])
+        nextDepth = sum(measurementsGroups[index + 1])
+        amountIncreased = getNextAmountIncreased(curDepth, nextDepth, amountIncreased)
+
+resultPart2 = amountIncreased
 print('Anwser day 1 part 2:', resultPart2)
