@@ -14,7 +14,7 @@ def getInputLines():
 # --- </Do not edit> ---
 
 
-def calcNextPos(command, position):
+def calcNextSimplePos(command, position):
     cmdIdentifier = command[0]
     cmdUnits = command[1]
 
@@ -30,6 +30,24 @@ def calcNextPos(command, position):
 
     return (posHorizontal, posDepth)
 
+def calcNextPosByAim(command, position):
+    cmdIdentifier = command[0]
+    cmdUnits = command[1]
+
+    posHorizontal = position[0]
+    posDepth = position[1]
+    posAim = position[2]
+
+    if cmdIdentifier.startswith('f'):
+        posHorizontal = posHorizontal + cmdUnits
+        posDepth = posDepth + (posAim * cmdUnits)
+    elif cmdIdentifier.startswith('d'):
+        posAim = posAim + cmdUnits
+    elif cmdIdentifier.startswith('u'):
+        posAim = posAim - cmdUnits
+
+    return (posHorizontal, posDepth, posAim)
+
 
 def createCommand(line):
     commandParts = line.split(" ", 1)
@@ -40,21 +58,31 @@ def createCommand(line):
 
 lines = getInputLines()
 
+# Part 1
+
 # Index 0: horizontal
 # Index 1: depth
 position = (0, 0)
 
-# Part 1
-position = (0, 0)
-
 for line in lines:
     command = createCommand(line)
-    position = calcNextPos(command, position)
+    position = calcNextSimplePos(command, position)
 
 # horizontal * depth
 resultPart1 = position[0] * position[1]
 print('Anwser day 2 part 1:', resultPart1)
 
 # Part 2
-resultPart2 = 0
+
+# Index 0: horizontal
+# Index 1: depth
+# Index 2: aim
+position = (0, 0, 0)
+
+for line in lines:
+    command = createCommand(line)
+    position = calcNextPosByAim(command, position)
+
+# horizontal * depth
+resultPart2 = position[0] * position[1]
 print('Anwser day 2 part 2:', resultPart2)
