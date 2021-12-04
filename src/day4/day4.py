@@ -83,6 +83,7 @@ def allTrue(collection):
     # When resulting collection is empty, everything had value True
     return len(list(filter(lambda x: x != True, collection))) == 0
 
+
 def getUnmarkedNumbers(board):
     unmarkedNumbers = []
 
@@ -116,11 +117,12 @@ boards = list(map(lambda x: createBoard(x), rawBoards))
 
 # Part 1
 
+part1Boards = boards.copy()
 winningBoard = None
 numberLetToWin = -1
 
 for drawNumber in drawNumbers:
-    for board in boards:
+    for board in part1Boards:
         doMarkNumber(board, drawNumber)
         if boardHasFilledRowOrColumn(board):
             numberLetToWin = drawNumber
@@ -151,5 +153,33 @@ resultPart1 = numberLetToWin * sumUnmarkedNumbers
 print('Anwser day 4 part 1:', resultPart1)
 
 # Part 2
-resultPart2 = 0
+winningBoard = None
+numberLetToWin = -1
+
+part2Boards = boards.copy()
+
+for drawNumber in drawNumbers:
+    for board in part2Boards:
+        doMarkNumber(board, drawNumber)
+
+    lastRemovedBoard = None
+    for board in part2Boards:
+        if boardHasFilledRowOrColumn(board):
+            part2Boards.remove(board)
+            lastRemovedBoard = board
+    
+    if len(part2Boards) == 0:
+        winningBoard = lastRemovedBoard
+        numberLetToWin = drawNumber
+        break
+
+# print('numberLetToWin', numberLetToWin)
+
+unmarkedNumbers = getUnmarkedNumbers(winningBoard)
+# print('unmarkedNumbers', unmarkedNumbers)
+
+sumUnmarkedNumbers = sum(unmarkedNumbers)
+# print('sumUnmarkedNumbers', sumUnmarkedNumbers)
+
+resultPart2 = numberLetToWin * sumUnmarkedNumbers
 print('Anwser day 4 part 2:', resultPart2)
