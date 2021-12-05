@@ -63,34 +63,34 @@ def isHorizontalOrVertical(line):
     return sameX | sameY
 
 
-def placeLine(grid, line):
-    # print('<placeLine>')
-    # print('line', line)
+def isDiagonal45Degrees(line):
+    # Calculate the magnitude
+    # When magnitude is an integer
+    # Then line is diagonal with 45 degrees
+    xDiff = line[SecondCoor][X] - line[FirstCoor][X]
+    yDiff = line[SecondCoor][Y] - line[FirstCoor][Y]
 
+    if (xDiff == 0) | (yDiff == 0):
+        return False
+
+    magnitude = xDiff / yDiff
+
+    return magnitude.is_integer()
+
+
+def placeLine(grid, line):
     # Assume moving from line[FirstCoor] towards line[SecondCoor]
     xDelta = getDelta(line[FirstCoor][X], line[SecondCoor][X])
     yDelta = getDelta(line[FirstCoor][Y], line[SecondCoor][Y])
-    # print('xDelta', xDelta)
-    # print('yDelta', yDelta)
 
     x = line[FirstCoor][X]
     y = line[FirstCoor][Y]
-    # print('x', x)
-    # print('y', y)
 
     xEnd = line[SecondCoor][X]
     yEnd = line[SecondCoor][Y]
-    # print('xEnd', xEnd)
-    # print('yEnd', yEnd)
 
     shouldLoop = True
     while shouldLoop:
-        # print('x', x)
-        # print('y', y)
-
-        # print(len(grid))
-        # print(len(grid[y]))
-
         grid[y][x] = grid[y][x] + 1
 
         shouldLoop = False
@@ -98,7 +98,7 @@ def placeLine(grid, line):
         if x != xEnd:
             x = x + xDelta
             shouldLoop = True
-        
+
         if y != yEnd:
             y = y + yDelta
             shouldLoop = True
@@ -141,13 +141,14 @@ def printGrid(grid):
 
 textLines = getInputLines()
 
-# Part 1
 lines = list(map(lambda x: getLineCoordinates(x), textLines))
 # print(lines)
 
 furtherestCoordinates = getFurtherstCoordinate(lines)
 # print(furtherestCoordinates)
 
+
+# Part 1
 grid = defineGrid(furtherestCoordinates[Y], furtherestCoordinates[X])
 # print('After define', grid)
 
@@ -155,11 +156,20 @@ for line in lines:
     if isHorizontalOrVertical(line):
         # print('Is hor or ver', line)
         grid = placeLine(grid, line)
-# printGrid(grid)
+# printGrid(part1Grid)
 
 resultPart1 = countAmountOfAtleastOverlaps(grid, 2)
 print('Anwser day 5 part 1:', resultPart1)
 
 # Part 2
-resultPart2 = 0
+grid = defineGrid(furtherestCoordinates[Y], furtherestCoordinates[X])
+# print('After define', grid)
+
+for line in lines:
+    if isHorizontalOrVertical(line) | isDiagonal45Degrees(line):
+        # print('Is hor or ver or diag 45degrees', line)
+        grid = placeLine(grid, line)
+# printGrid(part2Grid)
+
+resultPart2 = countAmountOfAtleastOverlaps(grid, 2)
 print('Anwser day 5 part 2:', resultPart2)
