@@ -16,10 +16,42 @@ def getInputLines():
 
 lines = getInputLines()
 
+
+def executeDays(currentFish, days):
+    fish = currentFish.copy()
+    for day in range(days):
+        fish = executeDay(fish)
+        print(day, 'of', days, 'resulting in', len(fish), 'fish')
+
+    return fish
+
+
+def executeDay(currentFish):
+    fish = []
+
+    for existingFish in currentFish:
+        if existingFish <= 0:
+            fish.append(6)  # Fish reset
+            fish.append(8)  # New fish
+        else:
+            fish.append(existingFish - 1)  # Decrease one on counter
+
+    return fish
+
+
+inputFish = list(map(int, lines[0].split(',')))
+
 # Part 1
-resultPart1 = 0
+
+totalDaysToExecute = 80
+
+part1DaysToExecute = 80
+inputFish = executeDays(inputFish, part1DaysToExecute)
+resultPart1 = len(inputFish)
 print('Anwser day 6 part 1:', resultPart1)
 
 # Part 2
-resultPart2 = 0
+part2DaysToExecute = totalDaysToExecute - part1DaysToExecute
+inputFish = executeDays(inputFish, part2DaysToExecute)
+resultPart2 = len(inputFish)
 print('Anwser day 6 part 2:', resultPart2)
