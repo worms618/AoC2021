@@ -21,7 +21,6 @@ def executeDays(currentFish, days):
     fish = currentFish.copy()
     for day in range(days):
         fish = executeDay(fish)
-        print(day, 'of', days, 'resulting in', len(fish), 'fish')
 
     return fish
 
@@ -38,6 +37,9 @@ def executeDay(currentFish):
 
     return fish
 
+def calcTotalFish(fish):
+    return len(fish)
+
 
 inputFish = list(map(int, lines[0].split(',')))
 
@@ -47,11 +49,11 @@ totalDaysToExecute = 80
 
 part1DaysToExecute = 80
 inputFish = executeDays(inputFish, part1DaysToExecute)
-resultPart1 = len(inputFish)
+resultPart1 = calcTotalFish(inputFish)
 print('Anwser day 6 part 1:', resultPart1)
 
 # Part 2
 part2DaysToExecute = totalDaysToExecute - part1DaysToExecute
 inputFish = executeDays(inputFish, part2DaysToExecute)
-resultPart2 = len(inputFish)
+resultPart2 = calcTotalFish(inputFish)
 print('Anwser day 6 part 2:', resultPart2)
