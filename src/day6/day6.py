@@ -16,44 +16,72 @@ def getInputLines():
 
 lines = getInputLines()
 
+totalStatuses = 9
+statusFishToReproduce = 0
+statusFishReset = 6
+statusFishNew = 8
 
-def executeDays(currentFish, days):
-    fish = currentFish.copy()
+def createZeroForRange(total):
+    collection = []
+    for i in range(total):
+        collection.append(0)
+    return collection
+
+
+def determineStatuses(fish):
+    statuses = createZeroForRange(totalStatuses)
+
+    for f in fish:
+        statuses[f] += 1
+
+    return statuses
+
+
+def executeDays(currentStatuses, days):
+    statuses = currentStatuses.copy()
     for day in range(days):
-        fish = executeDay(fish)
+        statuses = executeDay(statuses)
 
-    return fish
+    return statuses
 
 
-def executeDay(currentFish):
-    fish = []
+def executeDay(currentStatuses):
+    statuses = createZeroForRange(len(currentStatuses))
 
-    for existingFish in currentFish:
-        if existingFish <= 0:
-            fish.append(6)  # Fish reset
-            fish.append(8)  # New fish
-        else:
-            fish.append(existingFish - 1)  # Decrease one on counter
+    totalFishToReproduce = currentStatuses[statusFishToReproduce]
+    statuses[statusFishReset] += totalFishToReproduce
+    statuses[statusFishNew] += totalFishToReproduce
 
-    return fish
+    for status in range(1, len(currentStatuses)):
+        statuses[status - 1] += currentStatuses[status]
+
+    return statuses
+
 
 def calcTotalFish(fish):
-    return len(fish)
+    return sum(fish)
+
+
+def printStases(statuses):
+    for i in range(len(statuses)):
+        print(i, '->', statuses[i])
 
 
 inputFish = list(map(int, lines[0].split(',')))
+statuses = determineStatuses(inputFish)
+# printStases(statuses)
 
 # Part 1
 
-totalDaysToExecute = 80
+totalDaysToExecute = 256
 
 part1DaysToExecute = 80
-inputFish = executeDays(inputFish, part1DaysToExecute)
-resultPart1 = calcTotalFish(inputFish)
+statuses = executeDays(statuses, part1DaysToExecute)
+resultPart1 = calcTotalFish(statuses)
 print('Anwser day 6 part 1:', resultPart1)
 
 # Part 2
 part2DaysToExecute = totalDaysToExecute - part1DaysToExecute
-inputFish = executeDays(inputFish, part2DaysToExecute)
-resultPart2 = calcTotalFish(inputFish)
+statuses = executeDays(statuses, part2DaysToExecute)
+resultPart2 = calcTotalFish(statuses)
 print('Anwser day 6 part 2:', resultPart2)
