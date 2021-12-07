@@ -53,28 +53,29 @@ def sumFuelCumulativeTowardsPostion(groupedPositions, positionTowards):
         if positionAbsDiff == 0:
             continue
 
-        fuel = getCumulativeOfRange(positionAbsDiff) * multiplier
+        # fuel = getCumulativeOfRange(positionAbsDiff) * multiplier
+        fuel = int(((positionAbsDiff * (positionAbsDiff + 1)) / 2)) * multiplier
         totalFuel += fuel
 
     return totalFuel
 
-def getCumulativeOfRange(stop):
-    if not (stop in cumulativeCache):
-        value = calcCumulativeOrRange(stop)
-        cumulativeCache.setdefault(stop, value)
+# def getCumulativeOfRange(stop):
+#     if not (stop in cumulativeCache):
+#         value = calcCumulativeOrRange(stop)
+#         cumulativeCache.setdefault(stop, value)
     
-    return cumulativeCache[stop]
+#     return cumulativeCache[stop]
 
-def calcCumulativeOrRange(stop):
-    value = 0
+# def calcCumulativeOrRange(stop):
+#     value = 0
 
-    # stop inclusive
-    for step in range(stop + 1):
-        value += step
+#     # stop inclusive
+#     for step in range(stop + 1):
+#         value += step
     
-    return value
+#     return value
 
-cumulativeCache = dict()
+# cumulativeCache = dict()
 
 lines = getInputLines()
 positions = list(map(int, lines[0].split(',')))
