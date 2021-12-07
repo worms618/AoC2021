@@ -13,6 +13,7 @@ def getInputLines():
     return lines
 # --- </Do not edit> ---
 
+
 def groupPositions(positions):
     groupedPositions = dict()
     # Count amount per position
@@ -25,41 +26,81 @@ def groupPositions(positions):
 
     return groupedPositions
 
-def countFuelTowardsPositions(groupedPositions, positionTowards):
+
+def sumFuelTowardsPostion(groupedPositions, positionTowards):
     totalFuel = 0
 
     for position in groupedPositions:
         multiplier = groupedPositions[position]
-        fuel = abs(positionTowards - position) * multiplier
+        positionAbsDiff = abs(positionTowards - position)
+
+        if positionAbsDiff == 0:
+            continue
+
+        fuel = positionAbsDiff * multiplier
         totalFuel += fuel
 
     return totalFuel
 
 
+def sumFuelCumulativeTowardsPostion(groupedPositions, positionTowards):
+    totalFuel = 0
+
+    for position in groupedPositions:
+        multiplier = groupedPositions[position]
+        positionAbsDiff = abs(positionTowards - position)
+
+        if positionAbsDiff == 0:
+            continue
+
+        fuel = getCumulativeOfRange(positionAbsDiff) * multiplier
+        totalFuel += fuel
+
+    return totalFuel
+
+def getCumulativeOfRange(stop):
+    if not (stop in cumulativeCache):
+        value = calcCumulativeOrRange(stop)
+        cumulativeCache.setdefault(stop, value)
+    
+    return cumulativeCache[stop]
+
+def calcCumulativeOrRange(stop):
+    value = 0
+
+    # stop inclusive
+    for step in range(stop + 1):
+        value += step
+    
+    return value
+
+cumulativeCache = dict()
+
 lines = getInputLines()
 positions = list(map(int, lines[0].split(',')))
-
-# Part 1
-positionsPart1 = positions.copy()
-maxPosition = max(positionsPart1)
-minPosition = min(positionsPart1)
+maxPosition = max(positions)
+minPosition = min(positions)
 # print(minPosition, maxPosition)
 
-groupedPositions = groupPositions(positionsPart1)
+groupedPositions = groupPositions(positions)
 # print(groupedPositions)
 
+# Part 1
 leastFuel = -1
-leastPosition = -1
-for position in groupedPositions:
-    fuel = countFuelTowardsPositions(groupedPositions, position)
+for position in range(minPosition, maxPosition):
+    fuel = sumFuelTowardsPostion(groupedPositions, position)
     if (leastFuel < 0) | (fuel < leastFuel):
         leastFuel = fuel
-        leastPosition = position
-    
-# print(leastPosition)
+
 resultPart1 = leastFuel
 print('Anwser day 7 part 1:', resultPart1)
 
 # Part 2
-resultPart2 = 0
+leastFuel = -1
+for position in range(minPosition, maxPosition):
+    fuel = sumFuelCumulativeTowardsPostion(groupedPositions, position)
+    if (leastFuel < 0) | (fuel < leastFuel):
+        leastFuel = fuel
+
+resultPart2 = leastFuel
 print('Anwser day 7 part 2:', resultPart2)
