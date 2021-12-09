@@ -17,7 +17,7 @@ def getInputLines():
 UniqueSignalPatterns = 0
 FourDigitOutputValue = 1
 
-segmentsPerNum = dict()
+segmentsPerNum = dict() # Signal length
 segmentsPerNum.setdefault(0, 'abcefg')  # 6
 segmentsPerNum.setdefault(1, 'cf')  # 2
 segmentsPerNum.setdefault(2, 'acdeg')  # 5
@@ -44,6 +44,7 @@ otherNumsNotToCheckPerNum.setdefault(4, [1, 7, 5, 6, 0, 2])
 otherNumsNotToCheckPerNum.setdefault(7, [1, 4, 6, 2])
 
 # len of segments - sum per len
+# E.g. (6 - 3) -> there are 3 numbers using 6 segments
 # 2 - 1
 # 3 - 1
 # 4 - 1
@@ -117,15 +118,13 @@ notes = list(map(lambda x: parseNote(x), lines))
 # print(notes)
 # Part 1
 
-countOutputWithUniqueSegmentLengths = 0
+resultPart1 = 0
 
 for note in notes:
     for output in note[FourDigitOutputValue]:
         if (len(output) in uniqueSegmentLengths):
-            countOutputWithUniqueSegmentLengths += 1
+            resultPart1 += 1
 
-
-resultPart1 = countOutputWithUniqueSegmentLengths
 print('Anwser day 8 part 1:', resultPart1)
 
 # Part 2
@@ -137,10 +136,9 @@ for note in notes:
     signalsPerLength = groupSignalsByLength(signals)
     # print(signalsPerLength)
 
-    numsToFind = list(filter(lambda x: not (
-        x in uniqueNums), segmentsPerNum.keys()))
-    signalsToConsider = list(filter(lambda x: not (
-        len(x) in uniqueSegmentLengths), signals))
+    # Process unique numbers
+    numsToFind = list(filter(lambda x: not (x in uniqueNums), segmentsPerNum.keys()))
+    signalsToConsider = list(filter(lambda x: not (len(x) in uniqueSegmentLengths), signals))
 
     for numWithUniqueSegmentLength in uniqueNums:
         segmentsForNum = segmentsPerNum.get(numWithUniqueSegmentLength)
@@ -188,7 +186,51 @@ for note in notes:
 
     print(numsToFind)
     print(signalsToConsider)
+    # End - Process unique numbers
 
+
+signalsPerUnsolvedSegments = dict()
+signalPerSegment = dict()
+
+# Test input
+signalsPerUnsolvedSegments.setdefault('a', 'bd')
+signalsPerUnsolvedSegments.setdefault('b', 'be')
+signalsPerUnsolvedSegments.setdefault('c', 'ab')
+signalsPerUnsolvedSegments.setdefault('d', 'bf')
+signalsPerUnsolvedSegments.setdefault('e', 'bcdeg')
+signalsPerUnsolvedSegments.setdefault('f', 'b')
+signalsPerUnsolvedSegments.setdefault('g', 'bcd')
+# End - Test input
+
+def getUnsolvedSegment(segments, solvedSegments):
+    return list(filter(lambda x: not (x in solvedSegments), segments))
+
+def getFirstSegmentWithOneSignalLeft(signalsPerSegment):
+    for segment in signalsPerSegment:
+        signalsLeft = signalsPerSegment[segment]
+        if len(signalsLeft) == 1:
+            return segment
+
+    return None
+
+def deleteSignalFromSegments(signalsPerSegment, signal):
+    for segment in signalsPerSegment:
+        signals = signalsPerSegment[segment]
+        signals = ''.join(filter(lambda x: not (x in signal), signals))
+        signalsPerSegment[segment] = signals
+
+while True:    
+    segmentToDoWith = getFirstSegmentWithOneSignalLeft(signalsPerUnsolvedSegments)
+    if segmentToDoWith == None:
+        break
+
+    signalForSegment = signalsPerUnsolvedSegments[segmentToDoWith]
+    signalPerSegment.setdefault(segmentToDoWith, signalForSegment)
+    signalsPerUnsolvedSegments.pop(segmentToDoWith)
+    deleteSignalFromSegments(signalsPerUnsolvedSegments, signalForSegment)
+
+print(signalsPerUnsolvedSegments)
+print(signalPerSegment)
 
 resultPart2 = 0
 print('Anwser day 8 part 2:', resultPart2)
