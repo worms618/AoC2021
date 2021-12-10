@@ -17,31 +17,31 @@ def getInputLines():
 UniqueSignalPatterns = 0
 FourDigitOutputValue = 1
 
-segmentsPerNum = dict() # Signal length
-segmentsPerNum.setdefault(0, 'abcefg')  # 6
-segmentsPerNum.setdefault(1, 'cf')  # 2
-segmentsPerNum.setdefault(2, 'acdeg')  # 5
-segmentsPerNum.setdefault(3, 'acdfg')  # 5
-segmentsPerNum.setdefault(4, 'bcdf')  # 4
-segmentsPerNum.setdefault(5, 'abdfg')  # 5
-segmentsPerNum.setdefault(6, 'abdefg')  # 6
-segmentsPerNum.setdefault(7, 'acf')  # 3
-segmentsPerNum.setdefault(8, 'abcdefg')  # 7
-segmentsPerNum.setdefault(9, 'abcdfg')  # 6
+segmentsPerNumber = dict() # Signal length
+segmentsPerNumber.setdefault(0, 'abcefg')  # 6
+segmentsPerNumber.setdefault(1, 'cf')  # 2
+segmentsPerNumber.setdefault(2, 'acdeg')  # 5
+segmentsPerNumber.setdefault(3, 'acdfg')  # 5
+segmentsPerNumber.setdefault(4, 'bcdf')  # 4
+segmentsPerNumber.setdefault(5, 'abdfg')  # 5
+segmentsPerNumber.setdefault(6, 'abdefg')  # 6
+segmentsPerNumber.setdefault(7, 'acf')  # 3
+segmentsPerNumber.setdefault(8, 'abcdefg')  # 7
+segmentsPerNumber.setdefault(9, 'abcdfg')  # 6
 
-otherNumsNotToCheckPerNum = dict()
+otherNumsNotToCheckPerNumber = dict()
 # 5,6 not using segment c;
 # 2 not using segment f
-otherNumsNotToCheckPerNum.setdefault(1, [5, 6, 2])
+otherNumsNotToCheckPerNumber.setdefault(1, [5, 6, 2])
 # 1, 7 not using segment b
 # 5, 6 not using segment c
 # 0 not using segment d
 # 2 not using segment f
-otherNumsNotToCheckPerNum.setdefault(4, [1, 7, 5, 6, 0, 2])
+otherNumsNotToCheckPerNumber.setdefault(4, [1, 7, 5, 6, 0, 2])
 # 1, 4, not using segment a
 # 6, not using segment c
 # 2, not using segment f
-otherNumsNotToCheckPerNum.setdefault(7, [1, 4, 6, 2])
+otherNumsNotToCheckPerNumber.setdefault(7, [1, 4, 6, 2])
 
 # len of segments - sum per len
 # E.g. (6 - 3) -> there are 3 numbers using 6 segments
@@ -53,8 +53,8 @@ otherNumsNotToCheckPerNum.setdefault(7, [1, 4, 6, 2])
 # 7 - 1
 
 # 1 = 2, 4 = 4, 7 = 3, 8 = 7
-uniqueNums = [1, 4, 7, 8]
-uniqueSegmentLengths = list(map(lambda x: len(segmentsPerNum[x]), uniqueNums))
+uniqueNumbers = [1, 4, 7, 8]
+uniqueSegmentLengths = list(map(lambda x: len(segmentsPerNumber[x]), uniqueNumbers))
 
 
 def parseNote(line):
@@ -91,7 +91,7 @@ def deleteNotPossibleSignalsForSegments(signalsPerSegment, segments, possibleSig
     return signalsPerSegment
 
 
-def groupSegmentLengthsWithNums(nums):
+def groupSegmentLengthsWithNums(nums, segmentsPerNum):
     segmentLengthsWithNums = dict()
 
     for num in nums:
@@ -129,17 +129,11 @@ print('Anwser day 8 part 1:', resultPart1)
 
 # Part 2
 
-signalsPerSegment = dict()
+def sortSignals(signals):
+    return ''.join(sorted(signals))
+# Test input
 
-for note in notes:
-    signals = note[UniqueSignalPatterns]
-    signalsPerLength = groupSignalsByLength(signals)
-    # print(signalsPerLength)
-
-    # Process unique numbers
-    numsToFind = list(filter(lambda x: not (x in uniqueNums), segmentsPerNum.keys()))
-    signalsToConsider = list(filter(lambda x: not (len(x) in uniqueSegmentLengths), signals))
-
+def doStep1(segmentsPerNum, otherNumsNotToCheckPerNum, uniqueNums, numsToFind, signalsToConsider, signalsPerLength):
     for numWithUniqueSegmentLength in uniqueNums:
         segmentsForNum = segmentsPerNum.get(numWithUniqueSegmentLength)
         segmentsLen = len(segmentsForNum)
@@ -148,8 +142,7 @@ for note in notes:
         # print(numWithUniqueSegmentLength, segmentsLen, segmentsForNum, '->', newSignalsForNum)
 
         # print('before ->', signalsPerSegment)
-        deleteNotPossibleSignalsForSegments(
-            signalsPerSegment, segmentsForNum, newSignalsForNum)
+        deleteNotPossibleSignalsForSegments(signalsPerSegment, segmentsForNum, newSignalsForNum)
         # print('after ->', signalsPerSegment)
 
     for numWithUniqueSegmentLength in uniqueNums:
@@ -178,35 +171,9 @@ for note in notes:
                     deleteNotPossibleSignalsForSegments(signalsPerSegment, segmentsForNum, consideredSignal)
                     # print('after ->', signalsPerSegment)
                     numsToFind.remove(foundNum)
-                    signalsToConsider.remove(consideredSignal)
+                    signalsToConsider.remove(consideredSignal)    
 
-    # print(numsToFind)
-    # print(signalsToConsider)
-    # End - Process unique numbers
-
-
-def sortSignals(signals):
-    return ''.join(sorted(signals))
-
-signalsPerUnsolvedSegments = dict()
-signalPerSegment = dict()
-numsToFind = []
-signalsToConsider = []
-
-# Step 2 check if there is a num to check, which is the single left for length
-
-# Test input
-numsToFind = [2,5,6]
-signalsToConsider = ['cdfbe', 'gcdfa', 'cdfgeb']
-signalsPerUnsolvedSegments.setdefault('a', 'abd')
-signalsPerUnsolvedSegments.setdefault('b', 'abe')
-signalsPerUnsolvedSegments.setdefault('c', 'ab')
-signalsPerUnsolvedSegments.setdefault('d', 'abf')
-signalsPerUnsolvedSegments.setdefault('e', 'abcdeg')
-signalsPerUnsolvedSegments.setdefault('f', 'ab')
-signalsPerUnsolvedSegments.setdefault('g', 'abcd')
-
-def getNumToFindWithUniqueSegmentLength(numsToFind):
+def getNumToFindWithUniqueSegmentLength(numsToFind, segmentsPerNum):
     segmentLenPerNums = list(map(lambda x: len(segmentsPerNum[x]), numsToFind))
     groupedSegmentLens = dict()
     for i in range(len(segmentLenPerNums)):
@@ -231,11 +198,11 @@ def deleteSignalCharPerSegmentWhichNotInNewSignal(signalPerSegment, originalSign
             newSignalForSegment = ''.join(newSignalForSegmentChars)
             signalPerSegment[segment] = newSignalForSegment
 
-def doStep2(signalPerSegment, numsToFind, signalsToConsider):
+def doStep2(signalPerSegment, numsToFind, signalsToConsider, segmentsPerNum):
     # Look if a number to find, with a unique segment length is leftover
     # If so, that one is linked to the signalToConsider with the same length
     while True:
-        numToCheck = getNumToFindWithUniqueSegmentLength(numsToFind)
+        numToCheck = getNumToFindWithUniqueSegmentLength(numsToFind, segmentsPerNum)
         if numToCheck == None:
             break
         numsToFind.remove(numToCheck)
@@ -245,8 +212,6 @@ def doStep2(signalPerSegment, numsToFind, signalsToConsider):
         signalsToConsider.remove(signalToConsider)
         # print(numToCheck, originalSignal, sortSignals(signalToConsider))
         deleteSignalCharPerSegmentWhichNotInNewSignal(signalPerSegment, originalSignal, signalToConsider)
-
-doStep2(signalsPerUnsolvedSegments, numsToFind, signalsToConsider)
 
 # print('After part 2')
 # print(signalsPerUnsolvedSegments)
@@ -286,20 +251,12 @@ def doStep3(signalsPerUnsolvedSegments, signalPerSegment):
         signalsPerUnsolvedSegments.pop(segmentToDoWith)
         deleteSignalFromSegments(signalsPerUnsolvedSegments, signalForSegment)
 
-doStep3(signalsPerUnsolvedSegments, signalPerSegment)
+
 # print(signalsPerUnsolvedSegments)
 # print(signalPerSegment)
 
-newConfigSignalForSegment = {v: k for k, v in signalPerSegment.items()}
-# print(translateTabelSignalsPerSegment)
-
-numPerSegments = {v: k for k, v in segmentsPerNum.items()}
-# print(numPerSegments)
-
 def translateSignals(signals, table):
     return ''.join(map(lambda s: table[s], signals))
-
-outputValues = []
 
 def getOutputValue(fourDigitSignals, configSignalForSegment):
     digits = []
@@ -311,11 +268,65 @@ def getOutputValue(fourDigitSignals, configSignalForSegment):
         digits.append(num)
     # print(digits)
     return int(''.join(map(lambda x: str(x), digits)))
-    
+
+outputValues = []
 for note in notes:
+    signals = note[UniqueSignalPatterns]
     fourDigitSignals = note[FourDigitOutputValue]
+
+    signalsPerLength = groupSignalsByLength(signals)
+    # print(signalsPerLength)
+
+    # Process unique numbers
+    numbersToFind = list(filter(lambda x: not (x in uniqueNumbers), segmentsPerNumber.keys()))
+    signalsToConsider = list(filter(lambda x: not (len(x) in uniqueSegmentLengths), signals))
+
+    signalsPerUnsolvedSegments = dict()
+    signalsPerSegment = dict()
+
+    numbersToFind = [2,5,6]
+    signalsToConsider = ['cdfbe', 'gcdfa', 'cdfgeb']
+    signalsPerUnsolvedSegments.setdefault('a', 'abd')
+    signalsPerUnsolvedSegments.setdefault('b', 'abe')
+    signalsPerUnsolvedSegments.setdefault('c', 'ab')
+    signalsPerUnsolvedSegments.setdefault('d', 'abf')
+    signalsPerUnsolvedSegments.setdefault('e', 'abcdeg')
+    signalsPerUnsolvedSegments.setdefault('f', 'ab')
+    signalsPerUnsolvedSegments.setdefault('g', 'abcd')
+    
+    print('--- after step 1 --- ')
+    print(numbersToFind)
+    print(signalsToConsider)
+    print(signalsPerUnsolvedSegments)
+    print(signalsPerSegment)
+
+    doStep2(signalsPerUnsolvedSegments, numbersToFind, signalsToConsider, segmentsPerNumber)
+    
+    print('--- after step 2 --- ')
+    print(numbersToFind)
+    print(signalsToConsider)
+    print(signalsPerUnsolvedSegments)
+    print(signalsPerSegment)
+
+    doStep3(signalsPerUnsolvedSegments, signalsPerSegment)
+    print('--- after step 3 --- ')
+    print(numbersToFind)
+    print(signalsToConsider)
+    print(signalsPerUnsolvedSegments)
+    print(signalsPerSegment)
+    
+    newConfigSignalForSegment = {v: k for k, v in signalsPerSegment.items()}
+    # print(translateTabelSignalsPerSegment)
+
+    numPerSegments = {v: k for k, v in segmentsPerNumber.items()}
+    # print(numPerSegments)
     outputValue = getOutputValue(fourDigitSignals, newConfigSignalForSegment)
+    
     outputValues.append(outputValue)
+
+    # print(numsToFind)
+    # print(signalsToConsider)
+    # End - Process unique numbers
 
 # print(outputValues)
 resultPart2 = sum(outputValues)
