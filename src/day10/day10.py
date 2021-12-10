@@ -23,6 +23,12 @@ SyntaxErrorScoreTable.setdefault(']', 57)
 SyntaxErrorScoreTable.setdefault('}', 1197)
 SyntaxErrorScoreTable.setdefault('>', 25137)
 
+CompletationScoreTable = dict()
+CompletationScoreTable.setdefault(')', 1)
+CompletationScoreTable.setdefault(']', 2)
+CompletationScoreTable.setdefault('}', 3)
+CompletationScoreTable.setdefault('>', 4)
+
 ChunkSyntax = dict()
 ChunkSyntax.setdefault('(', ')')
 ChunkSyntax.setdefault('[', ']')
@@ -71,9 +77,27 @@ def getFirstIllegalChar(chunks, syntax):
 
     return None
 
+def hasAIllegalChunk(chunks, syntax):
+    illegalChar = getFirstIllegalChar(chunks, syntax)
+
+    if illegalChar == None:
+        return False
+    return True
 
 def getChunksFromLines(lines, syntax):
     return list(map(lambda x: getChunksFromLine(x, syntax), lines))
+
+def divideInIncompleteAndIllegal(chunksPerLines, syntax):
+    incompletes = []
+    illegals = []
+
+    for chunksForLine in chunksPerLines:
+        if hasAIllegalChunk(chunksForLine, syntax):
+            illegals.append(chunksForLine)
+        else:
+            incompletes.append(chunksForLine)
+
+    return (incompletes, illegals)
 
 
 def getFirstIllegalCharPerLine(chunksPerLines, syntax):
@@ -86,6 +110,21 @@ def getFirstIllegalCharPerLine(chunksPerLines, syntax):
 def getTotalSyntaxErrorScore(chars, scoreTable):
     return sum(map(lambda x: scoreTable[x], chars))
 
+def getIncompleteChunks(chunks):
+    return list(filter(lambda x: x[ClosingCharIndex] == None, chunks))
+
+def getCompletationOfChunks(incompleteChunks, syntax):
+    return ''.join(map(lambda x: syntax[x[OpeningCharIndex]],incompleteChunks))
+
+def getCompletationScore(completation, scoreTable):
+    score = 0
+
+    for char in completation:
+        score *= 5
+        score += scoreTable[char]
+
+    return score
+
 
 # Part 1
 # lines = ['{<({})>]']
@@ -95,12 +134,22 @@ def getTotalSyntaxErrorScore(chars, scoreTable):
 chunksPerLines = getChunksFromLines(lines, ChunkSyntax)
 # print(chunksPerLines)
 
-firstIllegalCharsPerLine = getFirstIllegalCharPerLine(chunksPerLines, ChunkSyntax)
+[incompletes, illegals] = divideInIncompleteAndIllegal(chunksPerLines, ChunkSyntax)
+
+firstIllegalCharsPerLine = getFirstIllegalCharPerLine(illegals, ChunkSyntax)
 # print(firstIllegalCharsPerLine)
 
 resultPart1 = getTotalSyntaxErrorScore(firstIllegalCharsPerLine, SyntaxErrorScoreTable)
 print('Anwser day 10 part 1:', resultPart1)
 
 # Part 2
+
+for incomplete in incompletes:
+    chunks = getIncompleteChunks(incomplete)
+    chunks.reverse()
+    completation = getCompletationOfChunks(chunks, ChunkSyntax)
+    completationScore = getCompletationScore(completation, CompletationScoreTable)
+    print(completation, completationScore)
+
 resultPart2 = 0
 print('Anwser day 10 part 2:', resultPart2)
