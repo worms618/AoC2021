@@ -144,12 +144,18 @@ print('Anwser day 10 part 1:', resultPart1)
 
 # Part 2
 
+scores = []
 for incomplete in incompletes:
     chunks = getIncompleteChunks(incomplete)
     chunks.reverse()
     completation = getCompletationOfChunks(chunks, ChunkSyntax)
     completationScore = getCompletationScore(completation, CompletationScoreTable)
-    print(completation, completationScore)
+    # print(completation, completationScore)
+    scores.append(completationScore)
 
-resultPart2 = 0
+scores.sort()
+middleScoreIndex = int(len(scores) / 2)
+# print(scores)
+# print(len(scores), len(scores) / 2, middleScoreIndex)
+resultPart2 = scores[middleScoreIndex]
 print('Anwser day 10 part 2:', resultPart2)
