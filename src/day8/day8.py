@@ -180,8 +180,8 @@ for note in notes:
                     numsToFind.remove(foundNum)
                     signalsToConsider.remove(consideredSignal)
 
-    print(numsToFind)
-    print(signalsToConsider)
+    # print(numsToFind)
+    # print(signalsToConsider)
     # End - Process unique numbers
 
 
@@ -248,11 +248,11 @@ def doStep2(signalPerSegment, numsToFind, signalsToConsider):
 
 doStep2(signalsPerUnsolvedSegments, numsToFind, signalsToConsider)
 
-print('After part 2')
-print(signalsPerUnsolvedSegments)
-print(signalPerSegment)
-print(numsToFind)
-print(signalsToConsider)
+# print('After part 2')
+# print(signalsPerUnsolvedSegments)
+# print(signalPerSegment)
+# print(numsToFind)
+# print(signalsToConsider)
 
 # # End - Test input
 
@@ -274,6 +274,8 @@ def deleteSignalFromSegments(signalsPerSegment, signal):
         signalsPerSegment[segment] = signals
 
 def doStep3(signalsPerUnsolvedSegments, signalPerSegment):
+    # Check if an unsolved segment has a possible signal with 1 char left
+    # If so, delete that char at the other segment possible chars
     while True:    
         segmentToDoWith = getFirstSegmentWithOneSignalLeft(signalsPerUnsolvedSegments)
         if segmentToDoWith == None:
@@ -315,6 +317,6 @@ for note in notes:
     outputValue = getOutputValue(fourDigitSignals, newConfigSignalForSegment)
     outputValues.append(outputValue)
 
-print(outputValues)
+# print(outputValues)
 resultPart2 = sum(outputValues)
 print('Anwser day 8 part 2:', resultPart2)
