@@ -185,20 +185,76 @@ for note in notes:
     # End - Process unique numbers
 
 
+def sortSignals(signals):
+    return ''.join(sorted(signals))
+
 signalsPerUnsolvedSegments = dict()
 signalPerSegment = dict()
+numsToFind = []
+signalsToConsider = []
 
 # Step 2 check if there is a num to check, which is the single left for length
 
 # Test input
-signalsPerUnsolvedSegments.setdefault('a', 'bd')
-signalsPerUnsolvedSegments.setdefault('b', 'be')
+numsToFind = [2,5,6]
+signalsToConsider = ['cdfbe', 'gcdfa', 'cdfgeb']
+signalsPerUnsolvedSegments.setdefault('a', 'abd')
+signalsPerUnsolvedSegments.setdefault('b', 'abe')
 signalsPerUnsolvedSegments.setdefault('c', 'ab')
-signalsPerUnsolvedSegments.setdefault('d', 'bf')
-signalsPerUnsolvedSegments.setdefault('e', 'bcdeg')
-signalsPerUnsolvedSegments.setdefault('f', 'b')
-signalsPerUnsolvedSegments.setdefault('g', 'bcd')
-# End - Test input
+signalsPerUnsolvedSegments.setdefault('d', 'abf')
+signalsPerUnsolvedSegments.setdefault('e', 'abcdeg')
+signalsPerUnsolvedSegments.setdefault('f', 'ab')
+signalsPerUnsolvedSegments.setdefault('g', 'abcd')
+
+def getNumToFindWithUniqueSegmentLength(numsToFind):
+    segmentLenPerNums = list(map(lambda x: len(segmentsPerNum[x]), numsToFind))
+    groupedSegmentLens = dict()
+    for i in range(len(segmentLenPerNums)):
+        segmentLen = segmentLenPerNums[i]
+        num = numsToFind[i]
+        if not (segmentLen in groupedSegmentLens):
+            groupedSegmentLens[segmentLen] = []
+        
+        groupedSegmentLens[segmentLen].append(num)
+    
+    for length in groupedSegmentLens:
+        if len(groupedSegmentLens[length]) == 1:
+            return groupedSegmentLens[length][0]
+
+    return None
+
+def deleteSignalCharPerSegmentWhichNotInNewSignal(signalPerSegment, originalSignal, newSignal):
+    for segment in signalPerSegment:
+        signal = signalPerSegment[segment]
+        if segment in originalSignal:
+            newSignalForSegmentChars = list(filter(lambda x: x in newSignal, signal))            
+            newSignalForSegment = ''.join(newSignalForSegmentChars)
+            signalPerSegment[segment] = newSignalForSegment
+
+def doStep2(signalPerSegment, numsToFind, signalsToConsider):
+    # Look if a number to find, with a unique segment length is leftover
+    # If so, that one is linked to the signalToConsider with the same length
+    while True:
+        numToCheck = getNumToFindWithUniqueSegmentLength(numsToFind)
+        if numToCheck == None:
+            break
+        numsToFind.remove(numToCheck)
+        originalSignal = segmentsPerNum[numToCheck]
+        numToCheckSegmentLength = len(originalSignal)
+        signalToConsider = list(filter(lambda x: len(x) == numToCheckSegmentLength, signalsToConsider))[0]
+        signalsToConsider.remove(signalToConsider)
+        # print(numToCheck, originalSignal, sortSignals(signalToConsider))
+        deleteSignalCharPerSegmentWhichNotInNewSignal(signalPerSegment, originalSignal, signalToConsider)
+
+doStep2(signalsPerUnsolvedSegments, numsToFind, signalsToConsider)
+
+print('After part 2')
+print(signalsPerUnsolvedSegments)
+print(signalPerSegment)
+print(numsToFind)
+print(signalsToConsider)
+
+# # End - Test input
 
 def getUnsolvedSegment(segments, solvedSegments):
     return list(filter(lambda x: not (x in solvedSegments), segments))
@@ -237,9 +293,6 @@ newConfigSignalForSegment = {v: k for k, v in signalPerSegment.items()}
 
 numPerSegments = {v: k for k, v in segmentsPerNum.items()}
 # print(numPerSegments)
-
-def sortSignals(signals):
-    return ''.join(sorted(signals))
 
 def translateSignals(signals, table):
     return ''.join(map(lambda s: table[s], signals))
