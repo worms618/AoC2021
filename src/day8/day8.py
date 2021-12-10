@@ -188,6 +188,8 @@ for note in notes:
 signalsPerUnsolvedSegments = dict()
 signalPerSegment = dict()
 
+# Step 2 check if there is a num to check, which is the single left for length
+
 # Test input
 signalsPerUnsolvedSegments.setdefault('a', 'bd')
 signalsPerUnsolvedSegments.setdefault('b', 'be')
