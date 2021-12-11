@@ -95,6 +95,12 @@ def doOnFlash():
     global totalFlashes
     totalFlashes += 1
 
+def didAllFlash(grid):
+    for r in grid:
+        for value in r:
+            if value > 0:
+                return False
+    return True
 
 adjacents = [
     # top row
@@ -118,21 +124,29 @@ grid = createGrid(lines)
 
 # Part 1
 totalFlashes = 0
-part1Grid = createGrid(grid)
 steps = 100
 
-# printGrid(part1Grid)
+# printGrid(grid)
 for i in range(steps):
-    part1Grid = doStep(part1Grid, doOnFlash, adjacents)
+    grid = doStep(grid, doOnFlash, adjacents)
     # print('-------')
-    # printGrid(part1Grid)
+    # printGrid(grid)
 
-# printGrid(part1Grid)
-
+# printGrid(grid)
 
 resultPart1 = totalFlashes
 print('Anwser day 11 part 1:', resultPart1)
 
 # Part 2
-resultPart2 = 0
+part2Steps = 0
+while True:
+    grid = doStep(grid, doOnFlash, adjacents)
+    part2Steps += 1
+    if didAllFlash(grid):
+        break
+    # print('-------')
+    # printGrid(grid)
+# printGrid(grid)
+
+resultPart2 = steps + part2Steps
 print('Anwser day 11 part 2:', resultPart2)
