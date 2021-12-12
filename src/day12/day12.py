@@ -63,9 +63,9 @@ def createCaveGraph(caveConnections):
 def printCaveGraph(graph):
     for nodeName in graph:
         node = graph[nodeName]
-        nodeFromNames = ','.join(map(lambda x: x, node[NodeFrom]))
         nodeToNames = ','.join(map(lambda x: x, node[NodeTo]))
-        print(nodeName, '->', nodeToNames)
+        nodeFromNames = ','.join(map(lambda x: x, node[NodeFrom]))
+        print(nodeName, 'To ->', nodeToNames, 'From <-', nodeFromNames)
 
 
 def getIsBigCave(caveNode):
@@ -75,6 +75,7 @@ def getIsBigCave(caveNode):
 
 
 def getPathsToEnd(graph, startNodeName, endNodeName):
+    # Depth - first search
     pathsToEnd = []
 
     if startNodeName == endNodeName:
@@ -83,7 +84,6 @@ def getPathsToEnd(graph, startNodeName, endNodeName):
 
     startNode = graph[startNodeName]
     toNodes = startNode[NodeTo]
-    fromNodes = startNode[NodeFrom]
 
     pathPrefix = [startNodeName]
 
@@ -94,6 +94,13 @@ def getPathsToEnd(graph, startNodeName, endNodeName):
             pathsToEnd.append(path)
 
     return pathsToEnd
+
+def calcPathsToEnd(graph, endNodeName):
+    for nodeName in graph:
+        pathsToEnd = getPathsToEnd(graph, nodeName, endNodeName)
+        for path in pathsToEnd:
+            graph[nodeName][NodeEndPath].append(path)
+        
 
 
 lines = getInputLines()
@@ -107,7 +114,11 @@ printCaveGraph(caveGraph)
 
 # Part 1
 pathsToEnd = getPathsToEnd(caveGraph, 'start', 'end')
-print(pathsToEnd)
+# print(pathsToEnd)
+
+calcPathsToEnd(caveGraph, 'end')
+print(caveGraph['start'][NodeEndPath])
+
 resultPart1 = len(pathsToEnd)
 print('Anwser day 12 part 1:', resultPart1)
 
