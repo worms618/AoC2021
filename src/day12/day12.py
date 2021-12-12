@@ -54,8 +54,8 @@ def createCaveGraph(caveConnections):
         fromNode = getNodeAndInsertIfNotExists(fromNodeName, nodes)
         toNode = getNodeAndInsertIfNotExists(toNodeName, nodes)
 
-        fromNode[NodeTo].append(toNode)
-        toNode[NodeFrom].append(fromNode)
+        fromNode[NodeTo].append(toNodeName)
+        toNode[NodeFrom].append(fromNodeName)
 
     return nodes
 
@@ -63,8 +63,8 @@ def createCaveGraph(caveConnections):
 def printCaveGraph(graph):
     for nodeName in graph:
         node = graph[nodeName]
-        nodeFromNames = ','.join(map(lambda x: x[NodeName], node[NodeFrom]))
-        nodeToNames = ','.join(map(lambda x: x[NodeName], node[NodeTo]))
+        nodeFromNames = ','.join(map(lambda x: x, node[NodeFrom]))
+        nodeToNames = ','.join(map(lambda x: x, node[NodeTo]))
         print(nodeName, '->', nodeToNames)
 
 
@@ -83,10 +83,12 @@ def getPathsToEnd(graph, startNodeName, endNodeName):
 
     startNode = graph[startNodeName]
     toNodes = startNode[NodeTo]
+    fromNodes = startNode[NodeFrom]
 
     pathPrefix = [startNodeName]
-    for toNode in toNodes:
-        otherPathsToEnd = getPathsToEnd(graph, toNode[NodeName], endNodeName)
+
+    for toNodeName in toNodes:
+        otherPathsToEnd = getPathsToEnd(graph, toNodeName, endNodeName)
         for otherPathToEnd in otherPathsToEnd:
             path = pathPrefix + otherPathToEnd
             pathsToEnd.append(path)
@@ -99,12 +101,12 @@ caveConnections = list(map(lambda x: createCaveConnection(x), lines))
 print(caveConnections)
 
 caveGraph = createCaveGraph(caveConnections)
-# printCaveGraph(caveGraph)
+printCaveGraph(caveGraph)
 
 # print(caveGraph['start'][NodeTo])
 
 # Part 1
-pathsToEnd = getPathsToEnd(caveGraph, 'A', 'end')
+pathsToEnd = getPathsToEnd(caveGraph, 'start', 'end')
 print(pathsToEnd)
 resultPart1 = len(pathsToEnd)
 print('Anwser day 12 part 1:', resultPart1)
