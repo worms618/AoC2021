@@ -104,13 +104,16 @@ def fillPageWithFold(page, fold):
     elif axis == 'y':
         fillPageWithFoldY(page, value)
 
+
 def fillPageWithFoldX(page, x):
     for r in range(len(page)):
         page[r][x] = pvFoldX
 
+
 def fillPageWithFoldY(page, y):
     for c in range(len(page[y])):
         page[y][c] = pvFoldY
+
 
 def applyFold(page, fold):
     [axis, value] = fold
@@ -119,21 +122,32 @@ def applyFold(page, fold):
     elif axis == 'y':
         return applyYAxisFold(page, value)
 
+
 def applyYAxisFold(page, y):
     newPage = []
 
-    rowsAboveFoldLine = page[0:y]
     # ignore fold line
     rowsBelowFoldLine = page[y+1:]
+    expectedRows = len(rowsBelowFoldLine)
+
+    # Get the same amount of rows above the fold line
+    # as below, while ignoring the fold line
+    fromAboveLine = y - (len(page) - (y + 1))
+    rowsAboveFoldLine = page[fromAboveLine:y]
+
+    unaffectedRows = page[0: fromAboveLine]
 
     # reverse the lines below the fold line
     # so the order is a 'reflecting' when you:
     # fold the bottom half up
     rowsBelowFoldLine.reverse()
 
-    for iRow in range(len(rowsAboveFoldLine)):
+    expectedColumns = len(rowsAboveFoldLine[0])
+
+    newPage = unaffectedRows
+    for iRow in range(expectedRows):
         newRow = []
-        for iColumn in range(len(rowsAboveFoldLine[iRow])):
+        for iColumn in range(expectedColumns):
             valueAbove = rowsAboveFoldLine[iRow][iColumn]
             valueBelow = rowsBelowFoldLine[iRow][iColumn]
             if (valueAbove == pvDot) or (valueBelow == pvDot):
@@ -142,8 +156,8 @@ def applyYAxisFold(page, y):
                 newRow.append(pvEmpty)
         newPage.append(newRow)
 
-
     return newPage
+
 
 def applyXAxisFold(page, x):
     newPage = []
@@ -166,7 +180,6 @@ def applyXAxisFold(page, x):
             column.append(value)
         listToFill.append(column)
 
-
     # reverse the columns right of the fold line
     # so the order if is a 'reflecting' when you:
     # fold left
@@ -185,11 +198,13 @@ def applyXAxisFold(page, x):
 
     return newPage
 
+
 def countDotsOnPage(page):
     dots = 0
     for row in page:
         dots += sum(filter(lambda x: x == pvDot, row))
     return dots
+
 
 lines = getInputLines()
 
@@ -200,7 +215,7 @@ folds = list(map(lambda x: createFold(x), foldValues))
 # print(dots, folds)
 
 [pageWidth, pageHeight] = getPageDimensions(dots)
-# print(pageWidth, pageHeight)
+print(pageWidth, pageHeight)
 
 page = createPage(pageWidth, pageHeight)
 # printPage(page)
