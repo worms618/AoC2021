@@ -123,10 +123,8 @@ def applyYAxisFold(page, y):
     newPage = []
 
     rowsAboveFoldLine = page[0:y]
+    # ignore fold line
     rowsBelowFoldLine = page[y+1:]
-    
-    # print(rowsAboveFoldLine)
-    # print(rowsBelowFoldLine)
 
     # reverse the lines below the fold line
     # so the order is a 'reflecting' when you:
@@ -148,7 +146,44 @@ def applyYAxisFold(page, y):
     return newPage
 
 def applyXAxisFold(page, x):
-    return page
+    newPage = []
+
+    columnsLeftOfFoldLine = []
+    columnsRightOfFoldLine = []
+
+    listToFill = columnsLeftOfFoldLine
+    for iColumn in range(len(page[0])):
+        # ignore fold line
+        if iColumn == x:
+            continue
+        if iColumn < x:
+            listToFill = columnsLeftOfFoldLine
+        else:
+            listToFill = columnsRightOfFoldLine
+        column = []
+        for iRow in range(len(page)):
+            value = page[iRow][iColumn]
+            column.append(value)
+        listToFill.append(column)
+
+
+    # reverse the columns right of the fold line
+    # so the order if is a 'reflecting' when you:
+    # fold left
+    columnsRightOfFoldLine.reverse()
+
+    for iRow in range(len(columnsLeftOfFoldLine[0])):
+        newRow = []
+        for iColumn in range(len(columnsLeftOfFoldLine)):
+            valueLeft = columnsLeftOfFoldLine[iColumn][iRow]
+            valueRight = columnsRightOfFoldLine[iColumn][iRow]
+            if (valueLeft == pvDot) or (valueRight == pvDot):
+                newRow.append(pvDot)
+            else:
+                newRow.append(pvEmpty)
+        newPage.append(newRow)
+
+    return newPage
 
 def countDotsOnPage(page):
     dots = 0
