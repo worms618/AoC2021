@@ -237,17 +237,24 @@ fillPageWithDots(page, dots)
 # printPage(page)
 
 # Part 1
-for fold in folds:
+for fold in folds[:1]:
     fillPageWithFold(page, fold)
     # printPage(page)
 
     page = applyFold(page, fold)
     # printPage(page)
-    break
+
 
 resultPart1 = countDotsOnPage(page)
 print('Anwser day 13 part 1:', resultPart1)
 
 # Part 2
+for fold in folds[1:]:
+    fillPageWithFold(page, fold)
+    # printPage(page)
+
+    page = applyFold(page, fold)
+    # printPage(page)
+printPage(page)
 resultPart2 = 0
 print('Anwser day 13 part 2:', resultPart2)
