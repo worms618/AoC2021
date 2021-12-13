@@ -112,30 +112,77 @@ def fillPageWithFoldY(page, y):
     for c in range(len(page[y])):
         page[y][c] = pvFoldY
 
+def applyFold(page, fold):
+    [axis, value] = fold
+    if axis == 'x':
+        return applyXAxisFold(page, value)
+    elif axis == 'y':
+        return applyYAxisFold(page, value)
+
+def applyYAxisFold(page, y):
+    newPage = []
+
+    rowsAboveFoldLine = page[0:y]
+    rowsBelowFoldLine = page[y+1:]
+    
+    # print(rowsAboveFoldLine)
+    # print(rowsBelowFoldLine)
+
+    # reverse the lines below the fold line
+    # so the order is a 'reflecting' when you:
+    # fold the bottom half up
+    rowsBelowFoldLine.reverse()
+
+    for iRow in range(len(rowsAboveFoldLine)):
+        newRow = []
+        for iColumn in range(len(rowsAboveFoldLine[iRow])):
+            valueAbove = rowsAboveFoldLine[iRow][iColumn]
+            valueBelow = rowsBelowFoldLine[iRow][iColumn]
+            if (valueAbove == pvDot) or (valueBelow == pvDot):
+                newRow.append(pvDot)
+            else:
+                newRow.append(pvEmpty)
+        newPage.append(newRow)
+
+
+    return newPage
+
+def applyXAxisFold(page, x):
+    return page
+
+def countDotsOnPage(page):
+    dots = 0
+    for row in page:
+        dots += sum(filter(lambda x: x == pvDot, row))
+    return dots
+
 lines = getInputLines()
 
 [dotValues, foldValues] = getDotAndFoldValues(lines)
 dots = list(map(lambda x: createDotVector(x), dotValues))
 folds = list(map(lambda x: createFold(x), foldValues))
 
-print(dots, folds)
+# print(dots, folds)
 
 [pageWidth, pageHeight] = getPageDimensions(dots)
-print(pageWidth, pageHeight)
+# print(pageWidth, pageHeight)
 
 page = createPage(pageWidth, pageHeight)
-printPage(page)
+# printPage(page)
 
 fillPageWithDots(page, dots)
-printPage(page)
+# printPage(page)
 
 # Part 1
 for fold in folds:
     fillPageWithFold(page, fold)
     printPage(page)
+
+    page = applyFold(page, fold)
+    printPage(page)
     break
 
-resultPart1 = 0
+resultPart1 = countDotsOnPage(page)
 print('Anwser day 13 part 1:', resultPart1)
 
 # Part 2
