@@ -126,9 +126,13 @@ def applyFold(page, fold):
 def applyYAxisFold(page, y):
     newPage = []
 
+    # Because fold from bottom half up
+    # No need to check if lines are unaffected below the fold line
+
     # ignore fold line
     rowsBelowFoldLine = page[y+1:]
     expectedRows = len(rowsBelowFoldLine)
+    expectedColumns = len(rowsBelowFoldLine[0])
 
     # Get the same amount of rows above the fold line
     # as below, while ignoring the fold line
@@ -141,8 +145,6 @@ def applyYAxisFold(page, y):
     # so the order is a 'reflecting' when you:
     # fold the bottom half up
     rowsBelowFoldLine.reverse()
-
-    expectedColumns = len(rowsAboveFoldLine[0])
 
     newPage = unaffectedRows
     for iRow in range(expectedRows):
@@ -162,6 +164,11 @@ def applyYAxisFold(page, y):
 def applyXAxisFold(page, x):
     newPage = []
 
+    totalColumns = len(page[0])
+    totalColumnsRightOfFoldLine = totalColumns - (x + 1)
+    fromLeftColumn = x - totalColumnsRightOfFoldLine
+
+    columnsUnaffected = []
     columnsLeftOfFoldLine = []
     columnsRightOfFoldLine = []
 
@@ -170,7 +177,9 @@ def applyXAxisFold(page, x):
         # ignore fold line
         if iColumn == x:
             continue
-        if iColumn < x:
+        if iColumn < fromLeftColumn:
+            listToFill = columnsUnaffected
+        elif iColumn < x:
             listToFill = columnsLeftOfFoldLine
         else:
             listToFill = columnsRightOfFoldLine
@@ -185,15 +194,19 @@ def applyXAxisFold(page, x):
     # fold left
     columnsRightOfFoldLine.reverse()
 
-    for iRow in range(len(columnsLeftOfFoldLine[0])):
+    for iRow in range(len(columnsRightOfFoldLine[0])):
         newRow = []
-        for iColumn in range(len(columnsLeftOfFoldLine)):
-            valueLeft = columnsLeftOfFoldLine[iColumn][iRow]
-            valueRight = columnsRightOfFoldLine[iColumn][iRow]
-            if (valueLeft == pvDot) or (valueRight == pvDot):
-                newRow.append(pvDot)
+        for iColumn in range(len(columnsUnaffected) + len(columnsLeftOfFoldLine)):
+            if iColumn < fromLeftColumn:
+                newRow.append(columnsUnaffected[iColumn][iRow])
             else:
-                newRow.append(pvEmpty)
+                scaledIColumn = iColumn - fromLeftColumn
+                valueLeft = columnsLeftOfFoldLine[scaledIColumn][iRow]
+                valueRight = columnsRightOfFoldLine[scaledIColumn][iRow]
+                if (valueLeft == pvDot) or (valueRight == pvDot):
+                    newRow.append(pvDot)
+                else:
+                    newRow.append(pvEmpty)
         newPage.append(newRow)
 
     return newPage
@@ -230,7 +243,6 @@ for fold in folds:
 
     page = applyFold(page, fold)
     printPage(page)
-    break
 
 resultPart1 = countDotsOnPage(page)
 print('Anwser day 13 part 1:', resultPart1)
