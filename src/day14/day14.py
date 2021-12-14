@@ -72,6 +72,8 @@ lines = getInputLines()
 # print(template)
 # print(rules)
 
+
+# Part 1
 steps = 10
 
 polymer = template
@@ -79,19 +81,32 @@ polymer = template
 for _ in range(steps):
     polymer = applyInsertionRules(polymer, rules)
     # print('after ->', polymer)
-# Part 1
-
 countPerElement = countElements(polymer)
 # print(countPerElement)
 
 counts = countPerElement.values()
 mostCommonElementCount = max(counts)
 leastCommonElementCount = min(counts)
-print(mostCommonElementCount, '-', leastCommonElementCount)
+# print(mostCommonElementCount, '-', leastCommonElementCount)
 
 resultPart1 = mostCommonElementCount - leastCommonElementCount
 print('Anwser day 14 part 1:', resultPart1)
 
 # Part 2
-resultPart2 = 0
+steps = 30
+
+polymer = template
+# print('start ->', polymer)
+for i in range(steps):
+    polymer = applyInsertionRules(polymer, rules)
+    print('after ->', i, len(polymer))
+countPerElement = countElements(polymer)
+# print(countPerElement)
+
+counts = countPerElement.values()
+mostCommonElementCount = max(counts)
+leastCommonElementCount = min(counts)
+# print(mostCommonElementCount, '-', leastCommonElementCount)
+
+resultPart2 =  mostCommonElementCount - leastCommonElementCount
 print('Anwser day 14 part 2:', resultPart2)
