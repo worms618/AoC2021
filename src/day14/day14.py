@@ -23,42 +23,32 @@ def createRules(lines):
     rules = dict()
 
     for line in lines:
-        # print(line)
         [pair, element] = line.split(' -> ')
         rules.setdefault(pair, element)
 
     return rules
 
-def applyInsertionRules(polymer, newPartPerRule):
-    newPolymer = polymer[0]
-    print('start - getPolymerPairs')
-    [pairs, total] = getPolymerPairs(polymer)
-    print('end - getPolymerPairs')
-    # print(total, pairs)
+def applyInsertionRules(pairs, newPartPerRule):
+    newPairs = []
 
-    for i in range(total):
-        for pair in pairs:
-            pairIndices = pairs[pair]
-            if i in pairIndices:
-                newPart = newPartPerRule[pair]
-                newPolymer += newPart[1:]
-                break
-    print('end - create new polymer')
+    for pair in pairs:
+        newPart = newPartPerRule[pair]
+        newPairLeft = newPart[:2]
+        newPairRight = newPart[1:]
+        newPairs.append(newPairLeft)
+        newPairs.append(newPairRight)
 
-    return newPolymer
+    return newPairs
 
 def getPolymerPairs(polymer):
-    pairs = dict()
-    totalPairs = 0
+    pairs = []
 
     for i in range(len(polymer) - 1):
         pair = polymer[i:i+2]
-        if not (pair in pairs):
-            pairs.setdefault(pair, [])
-        pairs[pair].append(i)
-        totalPairs += 1
+        pairs.append(pair)
 
-    return (pairs, totalPairs)
+    return pairs
+
 
 def createNewPartPerRule(rules):
     newPartPerRule = dict()
@@ -68,6 +58,15 @@ def createNewPartPerRule(rules):
         newPartPerRule.setdefault(rule, newPart)
 
     return newPartPerRule
+
+def createPolymerFromPairs(pairs):
+    polymer = pairs[0][0]
+
+    for pair in pairs:
+        nextPart = pair[1:]
+        polymer += nextPart
+
+    return polymer
 
 def countElements(polymer):
     countPerElement = dict()
@@ -84,45 +83,37 @@ lines = getInputLines()
 [template, rules] = getTemplateAndRules(lines)
 newPartPerRule = createNewPartPerRule(rules)
 
-# print(template)
-# print(rules)
-# print(newPartPerRule)
-
-
 # Part 1
 part1Steps = 10
 
 polymer = template
-# print('start ->', polymer)
+polymerPairs = getPolymerPairs(polymer)
 for i in range(part1Steps):
-    polymer = applyInsertionRules(polymer, newPartPerRule)
-    # print('after ->', i, len(polymer), polymer)
+    polymerPairs = applyInsertionRules(polymerPairs, newPartPerRule)
+
+polymer = createPolymerFromPairs(polymerPairs)
 countPerElement = countElements(polymer)
-# print(countPerElement)
 
 counts = countPerElement.values()
 mostCommonElementCount = max(counts)
 leastCommonElementCount = min(counts)
-print(mostCommonElementCount, '-', leastCommonElementCount)
 
 resultPart1 = mostCommonElementCount - leastCommonElementCount
 print('Anwser day 14 part 1:', resultPart1)
 
 # Part 2
-part2Steps = 30
+part2Steps = 0
 
-# print('start ->', polymer)
 for i in range(part2Steps):
-    print('start')
-    polymer = applyInsertionRules(polymer, newPartPerRule)
-    print('after ->', i + part1Steps, len(polymer))
+    polymerPairs = applyInsertionRules(polymerPairs, newPartPerRule)
+    # print(i+part1Steps, len(polymerPairs))
+
+polymer = createPolymerFromPairs(polymerPairs)
 countPerElement = countElements(polymer)
-# print(countPerElement)
 
 counts = countPerElement.values()
 mostCommonElementCount = max(counts)
 leastCommonElementCount = min(counts)
-print(mostCommonElementCount, '-', leastCommonElementCount)
 
 resultPart2 =  mostCommonElementCount - leastCommonElementCount
 print('Anwser day 14 part 2:', resultPart2)
