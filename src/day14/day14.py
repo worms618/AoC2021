@@ -30,16 +30,13 @@ def createRules(lines):
     return rules
 
 def applyInsertionRules(polymer, rules):
-    newPolymer = ''
+    newPolymer = polymer[0]
     pairs = getPolymerPairs(polymer)
     # print(pairs)
 
     for pair in pairs:
         # print(pair)
         if pair in rules:
-            if len(newPolymer) == 0:
-                newPolymer = pair[0]
-
             value = rules[pair]
             newPart = ''.join([value, pair[1]])
             # print(newPart)
@@ -95,7 +92,6 @@ print('Anwser day 14 part 1:', resultPart1)
 # Part 2
 steps = 30
 
-polymer = template
 # print('start ->', polymer)
 for i in range(steps):
     polymer = applyInsertionRules(polymer, rules)
