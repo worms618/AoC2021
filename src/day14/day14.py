@@ -29,18 +29,17 @@ def createRules(lines):
 
     return rules
 
-def applyInsertionRules(polymer, rules):
+def applyInsertionRules(polymer, newPartPerRule):
     newPolymer = polymer[0]
     pairs = getPolymerPairs(polymer)
     # print(pairs)
 
     for pair in pairs:
         # print(pair)
-        if pair in rules:
-            value = rules[pair]
-            newPart = ''.join([value, pair[1]])
+        if pair in newPartPerRule:
+            newPart = newPartPerRule[pair]
             # print(newPart)
-            newPolymer += newPart
+            newPolymer += newPart[1:]
 
     return newPolymer
 
@@ -48,9 +47,23 @@ def getPolymerPairs(polymer):
     pairs = []
 
     for i in range(len(polymer) - 1):
-        pairs.append(polymer[i:i+2])
+        # Verkleinen van de polymer?
+        pair = polymer[i:i+2]
+        pairs.append(pair)
+        # if not (pair in pairs):
+        #     pairs.setdefault(pair, [])
+        # pairs[pair].append(i)
 
     return pairs
+
+def createNewPartPerRule(rules):
+    newPartPerRule = dict()
+
+    for rule in rules:
+        newPart = rule[0]+rules[rule]+rule[1]
+        newPartPerRule.setdefault(rule, newPart)
+
+    return newPartPerRule
 
 def countElements(polymer):
     countPerElement = dict()
@@ -65,9 +78,11 @@ def countElements(polymer):
 
 lines = getInputLines()
 [template, rules] = getTemplateAndRules(lines)
+newPartPerRule = createNewPartPerRule(rules)
 
 # print(template)
 # print(rules)
+# print(newPartPerRule)
 
 
 # Part 1
@@ -75,28 +90,28 @@ steps = 10
 
 polymer = template
 # print('start ->', polymer)
-for _ in range(steps):
-    polymer = applyInsertionRules(polymer, rules)
-    # print('after ->', polymer)
+for i in range(steps):
+    polymer = applyInsertionRules(polymer, newPartPerRule)
+    # print('after ->', i, len(polymer))
 countPerElement = countElements(polymer)
 # print(countPerElement)
 
 counts = countPerElement.values()
 mostCommonElementCount = max(counts)
 leastCommonElementCount = min(counts)
-# print(mostCommonElementCount, '-', leastCommonElementCount)
+print(mostCommonElementCount, '-', leastCommonElementCount)
 
 resultPart1 = mostCommonElementCount - leastCommonElementCount
 print('Anwser day 14 part 1:', resultPart1)
 
 # Part 2
-steps = 30
+steps = 0
 
 # print('start ->', polymer)
-for i in range(steps):
-    polymer = applyInsertionRules(polymer, rules)
-    print('after ->', i, len(polymer))
-countPerElement = countElements(polymer)
+# for i in range(steps):
+#     polymer = applyInsertionRules(polymer, rules)
+#     # print('after ->', i, len(polymer))
+# countPerElement = countElements(polymer)
 # print(countPerElement)
 
 counts = countPerElement.values()
