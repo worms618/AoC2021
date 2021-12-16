@@ -57,10 +57,27 @@ def getPacket(bits, startBit):
 
 def getPacketWithLiteralValue(bits, version, typeId, startBit):
     # Literal value packets encode a single binary number
-    
     # startBit is first bit after the header bits
+    
+    totalUsedBits = 6 # Basic six for the header
+    groups = []
+    groupSize = 5
 
-    return (version, typeId, -1)
+    for i in range(startBit, len(bits), groupSize):
+        group = bits[i: i + groupSize]
+        firstBit = group[0]
+        groupValue = group[1:groupSize]
+        groups.append(groupValue)
+
+        if firstBit == '0':
+            break
+    
+    literalValueDecimal = ''.join(groups)
+    literalValue = int(literalValueDecimal, 2)
+
+    totalUsedBits += len(groups) * groupSize
+        
+    return (version, typeId, literalValue, totalUsedBits)
 
 def getPacketWithOperator(bits, version, typeId, startBit):
     # Every other type of packet (any packet with a type ID other than 4) represent an operator 
@@ -70,11 +87,15 @@ def getPacketWithOperator(bits, version, typeId, startBit):
     curBit = int(startBit)
     print(bits, curBit)
 
+    totalUsedBits = 6 # Basic six for the header
+    subPackets = []
+
     lengthTypeId = getLengthTypeId(bits, curBit) # bit 6 (immediately after header bits)
     curBit += 1
+    totalUsedBits += 1
     print(lengthTypeId)
 
-    subPackets = []
+    totalUsedBits = -1
 
     if lengthTypeId == 1:
         # If the length type ID is 1, then the next 11 bits 
@@ -92,7 +113,7 @@ def getPacketWithOperator(bits, version, typeId, startBit):
 
     # Finally, after the length type ID bit and the 15-bit or 11-bit field, the sub-packets appear.
     
-    return (version, typeId, subPackets)
+    return (version, typeId, subPackets, totalUsedBits)
 
 def getVersion(bits, startBit):
     # bits 0-2; e.g. 100 -> 4; 1*2^2+0*2^1+0*2^0
@@ -173,10 +194,11 @@ hexadecimalInBits = getBitsOfHexadecimal(inputHexadecimal, binarysForHChars)
 
 # Part 1
 print(inputHexadecimal)
-print(hexadecimalInBits, '00111000000000000110111101000101001010010001001000000000' == hexadecimalInBits)
+print(hexadecimalInBits, '110100101111111000101000' == hexadecimalInBits)
 
 packet = getPacket(hexadecimalInBits, 0)
 print(packet)
+printPositionInBits(hexadecimalInBits, packet[3])
 
 versions = getVersions(packet)
 print(versions)
