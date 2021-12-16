@@ -43,16 +43,56 @@ def getPacket(bits, startBit):
 
     # Bit 0-2
     version = getVersion(bits, curBit)
-
     # Set cursor next 3 position to the right
     curBit += 3
+
     # Bit 3-5
     typeId = getTypeId(bits, curBit)
+    curBit += 3
 
     if typeId == LiteravalValueTypeId:
-        return getPacketWithLiteralValue(bits, version, typeId, startBit)
+        return getPacketWithLiteralValue(bits, version, typeId, curBit)
     else:
-        return getPacketWithOperator(bits, version, typeId)
+        return getPacketWithOperator(bits, version, typeId, curBit)
+
+def getPacketWithLiteralValue(bits, version, typeId, startBit):
+    # Literal value packets encode a single binary number
+    
+    # startBit is first bit after the header bits
+
+    return (version, typeId, -1)
+
+def getPacketWithOperator(bits, version, typeId, startBit):
+    # Every other type of packet (any packet with a type ID other than 4) represent an operator 
+    # that performs some calculation on one or more sub-packets contained within
+    
+    # startBit is first bit after the header bits
+    curBit = int(startBit)
+    print(bits, curBit)
+
+    lengthTypeId = getLengthTypeId(bits, curBit) # bit 6 (immediately after header bits)
+    curBit += 1
+    print(lengthTypeId)
+
+    subPackets = []
+
+    if lengthTypeId == 1:
+        # If the length type ID is 1, then the next 11 bits 
+        # # are a number that represents the number of sub-packets immediately contained by this packet.
+        lengthTypeId = 1
+    else:
+        totalLengthOfBitsOfSubPacket = getTotalLengthOfBitsOfSubPackets(bits, curBit)
+        curBit += 15
+        
+        bitsWithSubPackets = getBitsForSubPackets(bits, curBit, totalLengthOfBitsOfSubPacket)
+        curBit += totalLengthOfBitsOfSubPacket
+        subPacketCurBit = 0
+        subPacket = getPacket(bitsWithSubPackets, subPacketCurBit)
+        subPackets.append(subPacket)
+
+    # Finally, after the length type ID bit and the 15-bit or 11-bit field, the sub-packets appear.
+    
+    return (version, typeId, subPackets)
 
 def getVersion(bits, startBit):
     # bits 0-2; e.g. 100 -> 4; 1*2^2+0*2^1+0*2^0
@@ -66,33 +106,29 @@ def getTypeId(bits, startBit):
 
     return int(versionBits, 2)
 
-def getPacketWithLiteralValue(bits, version, typeId, startBit):
-    # Literal value packets encode a single binary number
-    print(bits, startBit)
+def getLengthTypeId(bits, startBit):
+    # bits 0; e.g. 1 -> 1; 1*2^0
+    lengthTypeIds = bits[startBit:startBit + 1]
 
-    return (version, typeId, -1)
+    return int(lengthTypeIds, 2)
 
-def getPacketWithOperator(bits, version, typeId):
-    # Every other type of packet (any packet with a type ID other than 4) represent an operator 
-    # that performs some calculation on one or more sub-packets contained within
+def getTotalLengthOfBitsOfSubPackets(bits, startBit):
+    # If the length type ID is 0, then the next 15 bits 
+    # are a number that represents the total length in bits of the sub-packets contained by this packet.
 
-    lengthTypeId = -1 # bit 6 (immediately after header bits)
-    subPackets = []
+    # bits 0-15; e.g. 000000000011011 -> 27
+    bits = bits[startBit:startBit + 15]
 
-    if lengthTypeId == 1:
-        # If the length type ID is 1, then the next 11 bits 
-        # # are a number that represents the number of sub-packets immediately contained by this packet.
-        lengthTypeId = 1
-    else:
-        # If the length type ID is 0, then the next 15 bits 
-        # are a number that represents the total length in bits of the sub-packets contained by this packet.
-        lengthTypeId = 0
+    return int(bits, 2)
 
-    # Finally, after the length type ID bit and the 15-bit or 11-bit field, the sub-packets appear.
-    
-    return (version, typeId, subPackets)
+def getBitsForSubPackets(bits, startBit, totalBits):
+    endIndex = startBit + totalBits
+    bitsForSubPackerts = bits[startBit: endIndex]
 
-def getVerions(packet):
+    return bitsForSubPackerts
+
+
+def getVersions(packet):
     versions = []
 
     version = packet[0]
@@ -103,10 +139,15 @@ def getVerions(packet):
     if typeId != LiteravalValueTypeId:
         subs = packet[2]
         for subPacket in subs:
-            otherVersions = getVerions(subPacket)
+            otherVersions = getVersions(subPacket)
             versions += otherVersions
 
     return versions
+
+def printPositionInBits(bits, index):
+    print(bits)
+    prefixPointer = ''.join(map(lambda _:' ', range(index)))
+    print(prefixPointer + '^')
 
 
 lines = getInputLines()
@@ -132,12 +173,12 @@ hexadecimalInBits = getBitsOfHexadecimal(inputHexadecimal, binarysForHChars)
 
 # Part 1
 print(inputHexadecimal)
-print(hexadecimalInBits, '110100101111111000101000' == hexadecimalInBits)
+print(hexadecimalInBits, '00111000000000000110111101000101001010010001001000000000' == hexadecimalInBits)
 
 packet = getPacket(hexadecimalInBits, 0)
 print(packet)
 
-versions = getVerions(packet)
+versions = getVersions(packet)
 print(versions)
 
 resultPart1 = sum(versions)
