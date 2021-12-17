@@ -74,8 +74,6 @@ def getPacket(bits):
 def getPacketWithLiteralValue(bits, versionBits, typeIdBits):
     # Literal value packets encode a single binary number
     # startBit is first bit after the header bits
-
-    totalUsedBits = len(versionBits) + len(typeIdBits)
     groups = []
     groupSize = 5
 
@@ -84,8 +82,6 @@ def getPacketWithLiteralValue(bits, versionBits, typeIdBits):
         groupFirstBit = group[0]
         groups.append(group)
 
-        totalUsedBits += groupSize
-
         if groupFirstBit == '0':
             break
     
@@ -93,18 +89,16 @@ def getPacketWithLiteralValue(bits, versionBits, typeIdBits):
     literalValueInBits = ''.join(map(lambda x: ''.join(x), literalValueGroup))
     literalValue = getDecimalValue(literalValueInBits)
 
-    return (versionBits, typeIdBits, totalUsedBits, literalValue, groups, literalValueGroup)
+    return (versionBits, typeIdBits, literalValue, groups, literalValueGroup)
 
 
 def getPacketWithOperator(bits, versionBits, typeIdBits):
     # Every other type of packet (any packet with a type ID other than 4) represent an operator
     # that performs some calculation on one or more sub-packets contained within
 
-    totalUsedBits = len(versionBits) + len(typeIdBits)
     subPackets = []
 
     lengthTypeIdBits = mPop(bits, 0, 1)
-    totalUsedBits += len(lengthTypeIdBits)
     lengthTypeId = getDecimalValue(lengthTypeIdBits)
 
     subPacketDefinitionBits = []
@@ -135,7 +129,7 @@ def getPacketWithOperator(bits, versionBits, typeIdBits):
             subPackets.append(subPacket)
 
     # # Finally, after the length type ID bit and the 15-bit or 11-bit field, the sub-packets appear.
-    return (versionBits, typeIdBits, totalUsedBits, subPackets, 
+    return (versionBits, typeIdBits, subPackets, 
     lengthTypeIdBits, subPacketDefinitionBits, subPacketBits)
 
 def getTotalLengthOfBitsOfSubPackets(bits, startBit):
@@ -158,7 +152,7 @@ def getVersions(packet):
 
     versions.append(version)
     if typeId != LiteravalValueTypeId:
-        subs = packet[3]
+        subs = packet[2]
         for subPacket in subs:
             otherVersions = getVersions(subPacket)
             versions += otherVersions
@@ -179,14 +173,14 @@ def packetToString(packet):
         return packetOperatorToString(packet, versionPart, typeIdParts)
 
 def packetLiteralValueToString(packet, version, typeId):
-    groups = packet[4]
+    groups = packet[3]
     parts = [version, typeId] + list(map(lambda x: ''.join(x), groups))
     return '|'.join(parts)
 
 def packetOperatorToString(packet, version, typeId):
-    subPackets = packet[3]
-    lengthTypeBits = packet[4]
-    subPacketDefinitionBits = packet[5]
+    subPackets = packet[2]
+    lengthTypeBits = packet[3]
+    subPacketDefinitionBits = packet[4]
 
     lengthTypeIdPart = ''.join(lengthTypeBits)
     subPacketDefinitionPart = ''.join(subPacketDefinitionBits)
@@ -197,6 +191,10 @@ def packetOperatorToString(packet, version, typeId):
         parts.append(subPacketInStr)
     
     return '|'.join(parts)
+
+def getPacketResult(packet):
+
+    return 0
 
 
 lines = getInputLines()
@@ -222,6 +220,6 @@ versions = getVersions(packet)
 resultPart1 = sum(versions)
 print('Anwser day 16 part 1:', resultPart1)
 
-# Part 2
-resultPart2 = 0
+# Part 2 
+resultPart2 = getPacketResult(packet)
 print('Anwser day 16 part 2:', resultPart2)
