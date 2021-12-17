@@ -112,20 +112,18 @@ def getPacketWithOperator(bits, versionBits, typeIdBits):
     subPacketBits = []
 
     if lengthTypeId == 1:
-        subPackets = []
-    #     totalOfSubPackets = getTotalOfSubPackets(bits, curBit)
-    #     curBit += 11
-
-    #     while len(subPackets) < totalOfSubPackets:
-    #         subPacket = getPacket(bits, curBit)
-
-    #         curBit += subPacket[3]
-    #         subPackets.append(subPacket)
-    #         totalUsedBits += subPacket[3]
+        subPacketDefinitionBits = mPop(bits, 0, 11)
+        subPacketDefinitionValue = getDecimalValue(subPacketDefinitionBits)
+    
+        while len(subPackets) < subPacketDefinitionValue:
+            if len(bits) < 11:
+                raise ValueError('Did not satisfy amount of requested subpacket')
+            
+            subPacket = getPacket(bits)
+            subPackets.append(subPacket)
 
     else:
         subPacketDefinitionBits = mPop(bits, 0, 15)
-        totalUsedBits += len(subPacketDefinitionBits)
         subPacketDefinitionValue = getDecimalValue(subPacketDefinitionBits)
 
         subPacketBits = mPop(bits, 0, subPacketDefinitionValue)
@@ -206,29 +204,13 @@ inputHexadecimal = ''.join(lines)
 
 binarysForHChars = createFourBitBinaryForHexadecimalChar()
 
-# example of packet with literal value -> D2FE28 (hexadecimal string)
-# Bits: 110100101111111000101000
-# Contains are literal value
-# With binary number: 011111100101
-# Which is in decimal: 2021
-
-# example of packet with operator packet -> 38006F45291200 (hexadecimal string)
-# Bits: 00111000000000000110111101000101001010010001001000000000
-# length type ID = 0
-
-# example of packet with operator packet -> EE00D40C823060 (hexadecimal string)
-# Bits: 11101110000000001101010000001100100000100011000001100000
-# length type ID = 0
-
 hexadecimalInBits = getBitsOfHexadecimal(inputHexadecimal, binarysForHChars)
 
 # Part 1
 print(inputHexadecimal)
 
 hexadecimalInBitsAsList = list(hexadecimalInBits)
-print('bits         :', hexadecimalInBitsAsList)
 packet = getPacket(hexadecimalInBitsAsList.copy())
-print('leftover bits:', hexadecimalInBitsAsList)
 
 print(packet)
 
