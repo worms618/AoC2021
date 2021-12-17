@@ -81,9 +81,15 @@ probePos = Vector(0,0)
 probeVel = Vector(7,2)
 area = getAreaCoordinates(lines[0])
 
-for i in range(8):
-    [probePos, probeVel] = doStep(probePos, probeVel)
-    print(i,'->',probePos.asString(), probeVel.asString(), didPassArea(area, probePos))
+while True:
+    [nextProbePos, nextProbeVel] = doStep(probePos, probeVel)
+    if didPassArea(area, nextProbePos):
+        break
+    probePos = nextProbePos
+    probeVel = nextProbeVel
+
+
+print(probePos.asString(), probeVel.asString(), didPassArea(area, probePos))
 
 # Part 1
 resultPart1 = 0
