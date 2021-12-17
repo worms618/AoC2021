@@ -193,8 +193,65 @@ def packetOperatorToString(packet, version, typeId):
     return '|'.join(parts)
 
 def getPacketResult(packet):
+    typeIdBits = packet[1]
+    typeId = getDecimalValue(typeIdBits)
 
-    return 0
+    if typeId == LiteravalValueTypeId:
+        litervalValue = packet[2]
+        return litervalValue
+    else:
+        return getPacketOperatorResult(packet, typeId)
+
+def getPacketOperatorResult(packet, typeId):
+    subPackets = packet[2]
+    subPacketValues = list(map(lambda x: getPacketResult(x), subPackets))
+
+    if len(subPacketValues) == 1:
+        return subPacketValues[0]
+
+    value1 = subPacketValues[0]
+    value2 = subPacketValues[1]
+
+    # sum
+    if typeId == 0:
+        return sum(subPacketValues)
+    
+    # product
+    if typeId == 1:
+        value = subPacketValues[0]
+        for subPacketValue in subPacketValues[1:]:
+            value *= subPacketValue
+        return value
+    
+    # minimum
+    if typeId == 2:
+        return min(subPacketValues)
+
+    # maximum
+    if typeId == 3:
+        return max(subPacketValues)
+
+    # greater than
+    if typeId == 5:
+        
+        if value1 > value2:
+            return 1
+        else:
+            return 0
+    
+    # less than
+    if typeId == 6:
+        if value1 < value2:
+            return 1
+        else:
+            return 0
+    
+    # equal to
+    if typeId == 7:
+        if value1 == value2:
+            return 1
+        else:
+            return 0
 
 
 lines = getInputLines()
