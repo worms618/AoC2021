@@ -27,8 +27,25 @@ class Vector(object):
     y = property(lambda self: int(self._y), sety)
 
 def getAreaCoordinates(line):
-    topLeft = Vector(20, -5)
-    bottomRight = Vector(30, -10)
+    parts = line.replace('target area: ', '').split(',')
+
+    xPartValues = list(map(int,parts[0].strip()[2:].split('..')))
+    yPartValues = list(map(int,parts[1].strip()[2:].split('..')))
+
+    # Assume
+    # top left -> minX, maxY
+    # bottom right -> maxX, minY
+    # E.g. target area: x=20..30, y=-10..-5
+    # minX = 20; maxX = 30
+    # minY = -10; maxY = -5
+    minX = min(xPartValues)
+    minY = min(yPartValues)
+
+    maxX = max(xPartValues)
+    maxY = max(yPartValues)
+
+    topLeft = Vector(minX, maxY)
+    bottomRight = Vector(maxX, minY)
 
     return (topLeft, bottomRight)
 
