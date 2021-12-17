@@ -206,20 +206,19 @@ binarysForHChars = createFourBitBinaryForHexadecimalChar()
 
 hexadecimalInBits = getBitsOfHexadecimal(inputHexadecimal, binarysForHChars)
 
-# Part 1
-print(inputHexadecimal)
+# print(inputHexadecimal)
 
 hexadecimalInBitsAsList = list(hexadecimalInBits)
 packet = getPacket(hexadecimalInBitsAsList.copy())
 
-print(packet)
+# print(packet)
 
-print(''.join(hexadecimalInBitsAsList))
-print(packetToString(packet))
+# print(''.join(hexadecimalInBitsAsList))
+# print(packetToString(packet))
 
+# Part 1
 versions = getVersions(packet)
-print(versions)
-
+# print(versions)
 resultPart1 = sum(versions)
 print('Anwser day 16 part 1:', resultPart1)
 
