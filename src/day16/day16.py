@@ -85,7 +85,6 @@ def getPacketWithOperator(bits, version, typeId, startBit):
     
     # startBit is first bit after the header bits
     curBit = int(startBit)
-    print(bits, curBit)
 
     totalUsedBits = 6 # Basic six for the header
     subPackets = []
@@ -93,9 +92,6 @@ def getPacketWithOperator(bits, version, typeId, startBit):
     lengthTypeId = getLengthTypeId(bits, curBit) # bit 6 (immediately after header bits)
     curBit += 1
     totalUsedBits += 1
-    print(lengthTypeId)
-
-    totalUsedBits = -1
 
     if lengthTypeId == 1:
         # If the length type ID is 1, then the next 11 bits 
@@ -106,13 +102,17 @@ def getPacketWithOperator(bits, version, typeId, startBit):
         curBit += 15
         
         bitsWithSubPackets = getBitsForSubPackets(bits, curBit, totalLengthOfBitsOfSubPacket)
-        curBit += totalLengthOfBitsOfSubPacket
         subPacketCurBit = 0
-        subPacket = getPacket(bitsWithSubPackets, subPacketCurBit)
-        subPackets.append(subPacket)
+
+        while subPacketCurBit < len(bitsWithSubPackets):
+            subPacket = getPacket(bitsWithSubPackets, subPacketCurBit)
+            print(subPacket)
+            subPacketCurBit += subPacket[3]
+            subPackets.append(subPacket)
+
+        totalUsedBits += totalLengthOfBitsOfSubPacket
 
     # Finally, after the length type ID bit and the 15-bit or 11-bit field, the sub-packets appear.
-    
     return (version, typeId, subPackets, totalUsedBits)
 
 def getVersion(bits, startBit):
@@ -194,7 +194,7 @@ hexadecimalInBits = getBitsOfHexadecimal(inputHexadecimal, binarysForHChars)
 
 # Part 1
 print(inputHexadecimal)
-print(hexadecimalInBits, '110100101111111000101000' == hexadecimalInBits)
+print(hexadecimalInBits, '00111000000000000110111101000101001010010001001000000000' == hexadecimalInBits)
 
 packet = getPacket(hexadecimalInBits, 0)
 print(packet)
