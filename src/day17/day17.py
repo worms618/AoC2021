@@ -92,6 +92,78 @@ def didPassArea(areaCoordinates, pos):
 
     return isPassedX | isPassedY
 
+def isInArea(areaCoordinates, pos):
+    # areaCoordinates:
+    # first coordinate - top left point
+    # second coordinate - right bottom point
+
+    # Assume:
+    # Area is right of pos
+    # Area is beneath pos
+
+    [c1, c2] = areaCoordinates
+
+    minY = c1.y
+    minX = c1.x
+
+    maxY = c2.y
+    maxX = c2.x
+
+    isPassedMinX = pos.x > minX
+    isPassedMinY = pos.y < minY
+
+    isPassedMaxX = pos.x > maxX
+    isPassedMaxY = pos.y < maxY
+
+    isPassedBothMins = isPassedMinX & isPassedMinY
+    isPassedOneMax = isPassedMaxX | isPassedMaxY
+
+    return isPassedBothMins and (not isPassedOneMax)
+
+def getAllPathsThatReachArea(area, startPos):
+    paths = []
+
+    potentialVels = getPotentialVelocities(area)
+
+    while len(potentialVels) > 0:
+        potVel = potentialVels.pop()
+
+        path = getPathIfReachArea(area, startPos, potVel)
+        if path != None:
+            paths.append(path)
+
+    return paths
+
+def getPotentialVelocities(area):
+    return [Vector(7,2), Vector(6,3), Vector(9,0), Vector(17,-4)]
+
+def getPathIfReachArea(area, initialPos, initialVel):
+    positions = [initialPos]
+
+    probePos = initialPos.copy()
+    probeVel = initialVel.copy()
+
+    while True:
+        [nextProbePos, nextProbeVel] = doStep(probePos, probeVel)
+
+        # In area?
+        # Yes? positions.append(nextProbePos.copy())
+
+        InArea = isInArea(area, nextProbePos)
+        if InArea:
+            positions.append(nextProbePos.copy())
+            break
+        
+        if didPassArea(area, nextProbePos):
+            return None
+        
+        probePos = nextProbePos.copy()
+        probeVel = nextProbeVel.copy()
+        positions.append(nextProbePos.copy())
+
+    return positions
+
+
 lines = getInputLines()
 
 probePos = Vector(0,0)
@@ -107,6 +179,10 @@ while True:
 
 
 print(probePos.asString(), probeVel.asString(), didPassArea(area, probePos))
+
+paths = getAllPathsThatReachArea(area, Vector(0,0))
+for path in paths:
+    print('->'.join(map(lambda x: x.asString(), path)))
 
 # Part 1
 resultPart1 = 0
