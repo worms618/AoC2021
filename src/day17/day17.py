@@ -1,4 +1,7 @@
 # --- <Do not edit> ---
+import sys
+
+
 def getInputLines():
     import sys
 
@@ -135,7 +138,20 @@ def getAllPathsThatReachArea(area, startPos):
     return paths
 
 def getPotentialVelocities(area):
-    return [Vector(7,2), Vector(6,3), Vector(9,0), Vector(17,-4)]
+    vels = []
+
+    [c1, c2] = area
+
+    rangeYStart = c2.y
+    rangeYEnd = 100 # maxint
+
+    for x in range(0, c2.x):
+        for y in range(rangeYStart, rangeYEnd):
+            vels.append(Vector(x, y))
+
+    # return [Vector(7,2), Vector(6,3), Vector(9,0), Vector(17,-4)]
+    return vels
+
 
 def getPathIfReachArea(area, initialPos, initialVel):
     positions = [initialPos]
@@ -145,9 +161,6 @@ def getPathIfReachArea(area, initialPos, initialVel):
 
     while True:
         [nextProbePos, nextProbeVel] = doStep(probePos, probeVel)
-
-        # In area?
-        # Yes? positions.append(nextProbePos.copy())
 
         InArea = isInArea(area, nextProbePos)
         if InArea:
@@ -162,6 +175,18 @@ def getPathIfReachArea(area, initialPos, initialVel):
         positions.append(nextProbePos.copy())
 
     return positions
+
+def getHighestY(paths):
+    y = None
+
+    for path in paths:
+        for pos in path:
+            if y == None:
+                y = pos.y
+            elif pos.y > y:
+                y =  pos.y
+    
+    return y
 
 
 lines = getInputLines()
@@ -178,14 +203,14 @@ while True:
     probeVel = nextProbeVel
 
 
-print(probePos.asString(), probeVel.asString(), didPassArea(area, probePos))
+# print(probePos.asString(), probeVel.asString(), didPassArea(area, probePos))
 
 paths = getAllPathsThatReachArea(area, Vector(0,0))
-for path in paths:
-    print('->'.join(map(lambda x: x.asString(), path)))
+# for path in paths:
+    # print('->'.join(map(lambda x: x.asString(), path)))
 
 # Part 1
-resultPart1 = 0
+resultPart1 = getHighestY(paths)
 print('Anwser day 17 part 1:', resultPart1)
 
 # Part 2
