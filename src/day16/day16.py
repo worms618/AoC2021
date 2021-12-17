@@ -13,7 +13,9 @@ def getInputLines():
     return lines
 # --- </Do not edit> ---
 
+
 LiteravalValueTypeId = 4
+
 
 def createFourBitBinaryForHexadecimalChar():
     binaryForChar = dict()
@@ -33,63 +35,76 @@ def createFourBitBinaryForHexadecimalChar():
     binaryForChar.setdefault('D', '1101')
     binaryForChar.setdefault('E', '1110')
     binaryForChar.setdefault('F', '1111')
-    return binaryForChar    
+    return binaryForChar
+
 
 def getBitsOfHexadecimal(hexadecimal, binaryForChar):
     return ''.join(map(lambda x: binaryForChar[x], hexadecimal))
 
-def getPacket(bits, startBit):
-    curBit = int(startBit)
 
-    # Bit 0-2
-    version = getVersion(bits, curBit)
-    # Set cursor next 3 position to the right
-    curBit += 3
+def mPop(collection, startIndex, endIndex):
+    subCollection = []
+    for _ in range(startIndex, endIndex):
+        element = collection.pop(0)
+        subCollection.append(element)
 
-    # Bit 3-5
-    typeId = getTypeId(bits, curBit)
-    curBit += 3
+    return subCollection
+
+
+def getDecimalValue(bitsInList):
+    bitsInStr = ''.join(bitsInList)
+    return int(bitsInStr, 2)
+
+
+def getPacket(bits):
+    versionBits = mPop(bits, 0, 3)
+    typeIdBits = mPop(bits, 0, 3)
+    
+    typeId = getDecimalValue(typeIdBits)
 
     if typeId == LiteravalValueTypeId:
-        return getPacketWithLiteralValue(bits, version, typeId, curBit)
+        return getPacketWithLiteralValue(bits, versionBits, typeIdBits)
     else:
-        return getPacketWithOperator(bits, version, typeId, curBit)
+        return getPacketWithOperator(bits, versionBits, typeIdBits)
 
-def getPacketWithLiteralValue(bits, version, typeId, startBit):
+
+def getPacketWithLiteralValue(bits, versionBits, typeIdBits):
     # Literal value packets encode a single binary number
     # startBit is first bit after the header bits
-    
-    totalUsedBits = 6 # Basic six for the header
+
+    totalUsedBits = len(versionBits) + len(typeIdBits)
     groups = []
     groupSize = 5
 
-    for i in range(startBit, len(bits), groupSize):
-        group = bits[i: i + groupSize]
-        firstBit = group[0]
-        groupValue = group[1:groupSize]
-        groups.append(groupValue)
+    while len(bits) > 0:
+        group = mPop(bits, 0, groupSize)
+        groupFirstBit = group[0]
+        groups.append(group)
 
-        if firstBit == '0':
+        totalUsedBits += groupSize
+
+        if groupFirstBit == '0':
             break
     
-    literalValueDecimal = ''.join(groups)
-    literalValue = int(literalValueDecimal, 2)
+    literalValueGroup = list(map(lambda x: x[1:], groups))
+    literalValueInBits = ''.join(map(lambda x: ''.join(x), literalValueGroup))
+    literalValue = getDecimalValue(literalValueInBits)
 
-    totalUsedBits += len(groups) * groupSize
-        
-    return (version, typeId, literalValue, totalUsedBits)
+    return (versionBits, typeIdBits, totalUsedBits, literalValue, groups, literalValueGroup)
+
 
 def getPacketWithOperator(bits, version, typeId, startBit):
-    # Every other type of packet (any packet with a type ID other than 4) represent an operator 
+    # Every other type of packet (any packet with a type ID other than 4) represent an operator
     # that performs some calculation on one or more sub-packets contained within
-    
+
     # startBit is first bit after the header bits
     curBit = int(startBit)
 
-    totalUsedBits = 6 # Basic six for the header
+    totalUsedBits = 6  # Basic six for the header
     subPackets = []
 
-    lengthTypeId = getLengthTypeId(bits, curBit) # bit 6 (immediately after header bits)
+    # bit 6 (immediately after header bits)
+    lengthTypeId = getLengthTypeId(bits, curBit)
     curBit += 1
     totalUsedBits += 1
 
@@ -107,13 +122,14 @@ def getPacketWithOperator(bits, version, typeId, startBit):
     else:
         totalLengthOfBitsOfSubPacket = getTotalLengthOfBitsOfSubPackets(bits, curBit)
         curBit += 15
-        
-        bitsWithSubPackets = getBitsForSubPackets(bits, curBit, totalLengthOfBitsOfSubPacket)
+
+        bitsWithSubPackets = getBitsForSubPackets(
+            bits, curBit, totalLengthOfBitsOfSubPacket)
         subPacketCurBit = 0
 
         while subPacketCurBit < len(bitsWithSubPackets):
             subPacket = getPacket(bitsWithSubPackets, subPacketCurBit)
-            
+
             subPacketCurBit += subPacket[3]
             subPackets.append(subPacket)
 
@@ -122,11 +138,13 @@ def getPacketWithOperator(bits, version, typeId, startBit):
     # Finally, after the length type ID bit and the 15-bit or 11-bit field, the sub-packets appear.
     return (version, typeId, subPackets, totalUsedBits)
 
+
 def getVersion(bits, startBit):
     # bits 0-2; e.g. 100 -> 4; 1*2^2+0*2^1+0*2^0
     versionBits = bits[startBit:startBit + 3]
 
     return int(versionBits, 2)
+
 
 def getTypeId(bits, startBit):
     # bits 0-2; e.g. 100 -> 4; 1*2^2+0*2^1+0*2^0
@@ -134,14 +152,16 @@ def getTypeId(bits, startBit):
 
     return int(versionBits, 2)
 
+
 def getLengthTypeId(bits, startBit):
     # bits 0; e.g. 1 -> 1; 1*2^0
     lengthTypeIds = bits[startBit:startBit + 1]
 
     return int(lengthTypeIds, 2)
 
+
 def getTotalLengthOfBitsOfSubPackets(bits, startBit):
-    # If the length type ID is 0, then the next 15 bits 
+    # If the length type ID is 0, then the next 15 bits
     # are a number that represents the total length in bits of the sub-packets contained by this packet.
 
     # bits 0-15; e.g. 000000000011011 -> 27
@@ -149,15 +169,17 @@ def getTotalLengthOfBitsOfSubPackets(bits, startBit):
 
     return int(bits, 2)
 
+
 def getBitsForSubPackets(bits, startBit, totalBits):
     endIndex = startBit + totalBits
     bitsForSubPackerts = bits[startBit: endIndex]
 
     return bitsForSubPackerts
 
+
 def getTotalOfSubPackets(bits, startBit):
-        # If the length type ID is 1, then the next 11 bits 
-        # # are a number that represents the number of sub-packets immediately contained by this packet.
+    # If the length type ID is 1, then the next 11 bits
+    # # are a number that represents the number of sub-packets immediately contained by this packet.
     bitsToUse = bits[startBit:startBit + 11]
 
     return int(bitsToUse, 2)
@@ -166,23 +188,37 @@ def getTotalOfSubPackets(bits, startBit):
 def getVersions(packet):
     versions = []
 
-    version = packet[0]
-    typeId = packet[1]
+    versionBits = packet[0]
+    typeIdBits = packet[1]
+
+    version = getDecimalValue(versionBits)
+    typeId = getDecimalValue(typeIdBits)
 
     versions.append(version)
-
     if typeId != LiteravalValueTypeId:
-        subs = packet[2]
+        subs = packet[3]
         for subPacket in subs:
             otherVersions = getVersions(subPacket)
             versions += otherVersions
 
     return versions
 
-def printPositionInBits(bits, index):
-    print(bits)
-    prefixPointer = ''.join(map(lambda _:' ', range(index)))
-    print(prefixPointer + '^')
+def packetToString(packet):
+    versionBits = packet[0]
+    typeIdBits = packet[1]
+
+    versionPart = ''.join(versionBits)
+    typeIdParts = ''.join(typeIdBits)
+
+    typeId = getDecimalValue(typeIdBits)
+    if typeId == LiteravalValueTypeId:
+        return packetLiteralValueToString(packet, versionPart, typeIdParts)
+
+def packetLiteralValueToString(packet, version, typeId):
+    groups = packet[4]
+    parts = [version, typeId] + list(map(lambda x: ''.join(x), groups))
+    return '|'.join(parts)
+
 
 
 lines = getInputLines()
@@ -208,11 +244,14 @@ hexadecimalInBits = getBitsOfHexadecimal(inputHexadecimal, binarysForHChars)
 
 # Part 1
 print(inputHexadecimal)
-print(hexadecimalInBits, '11101110000000001101010000001100100000100011000001100000' == hexadecimalInBits)
 
-packet = getPacket(hexadecimalInBits, 0)
-print(packet)
-printPositionInBits(hexadecimalInBits, packet[3])
+hexadecimalInBitsAsList = list(hexadecimalInBits)
+print('bits         :', hexadecimalInBitsAsList)
+packet = getPacket(hexadecimalInBitsAsList.copy())
+print('leftover bits:', hexadecimalInBitsAsList)
+
+print(''.join(hexadecimalInBitsAsList))
+print(packetToString(packet))
 
 versions = getVersions(packet)
 print(versions)
