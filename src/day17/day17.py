@@ -26,6 +26,12 @@ class Vector(object):
     x = property(lambda self: int(self._x), setx)
     y = property(lambda self: int(self._y), sety)
 
+def getAreaCoordinates(line):
+    topLeft = Vector(20, -5)
+    bottomRight = Vector(30, -10)
+
+    return (topLeft, bottomRight)
+
 def doStep(pos, vel):
     nextPos = pos.copy()
     nextVel = vel.copy()
@@ -46,17 +52,38 @@ def doStep(pos, vel):
     elif nextVel.x < 0:
         nextVel.x += 1
 
-    nextVel.y += 1
+    nextVel.y -= 1
 
     return (nextPos, nextVel)
+
+def didPassArea(areaCoordinates, pos):
+    # areaCoordinates:
+    # first coordinate - top left point
+    # second coordinate - right bottom point
+
+    # Assume:
+    # Area is right of pos
+    # Area is beneath pos
+
+    [_, c2] = areaCoordinates
+
+    maxY = c2.y
+    maxX = c2.x
+
+    isPassedX = pos.x > maxX
+    isPassedY = pos.y < maxY
+
+    return isPassedX | isPassedY
 
 lines = getInputLines()
 
 probePos = Vector(0,0)
 probeVel = Vector(7,2)
-[probePos, probeVel] = doStep(probePos, probeVel)
+area = getAreaCoordinates(lines[0])
 
-print(probePos.asString(), probeVel.asString())
+for i in range(8):
+    [probePos, probeVel] = doStep(probePos, probeVel)
+    print(i,'->',probePos.asString(), probeVel.asString(), didPassArea(area, probePos))
 
 # Part 1
 resultPart1 = 0
