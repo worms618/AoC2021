@@ -13,8 +13,50 @@ def getInputLines():
     return lines
 # --- </Do not edit> ---
 
+class Vector(object):
+
+    def __init__(self, x=0, y=0):
+        self._x, self._y = x, y
+
+    def setx(self, x): self._x = int(x)
+    def sety(self, y): self._y = int(y)
+    def asString(self): return ','.join([str(self._x), str(self._y)])
+    def copy(self): return Vector(self.x, self.y)
+
+    x = property(lambda self: int(self._x), setx)
+    y = property(lambda self: int(self._y), sety)
+
+def doStep(pos, vel):
+    nextPos = pos.copy()
+    nextVel = vel.copy()
+    
+    # The probe's x position increases by its x velocity.
+    # The probe's y position increases by its y velocity.
+    # Due to drag, the probe's x velocity changes by 1 toward the value 0; that is, 
+    #   it decreases by 1 if it is greater than 0, 
+    #   increases by 1 if it is less than 0, 
+    #   or does not change if it is already 0.
+    # Due to gravity, the probe's y velocity decreases by 1.
+
+    nextPos.x += vel.x
+    nextPos.y += vel.y
+
+    if nextVel.x > 0:
+        nextVel.x -= 1
+    elif nextVel.x < 0:
+        nextVel.x += 1
+
+    nextVel.y += 1
+
+    return (nextPos, nextVel)
 
 lines = getInputLines()
+
+probePos = Vector(0,0)
+probeVel = Vector(7,2)
+[probePos, probeVel] = doStep(probePos, probeVel)
+
+print(probePos.asString(), probeVel.asString())
 
 # Part 1
 resultPart1 = 0
